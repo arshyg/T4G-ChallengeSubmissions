@@ -12,11 +12,11 @@ instructions:
   5. At the end of your output, include a count of the total number of Urgent tickets identified.
 example: 
   Input: 
-  - T1: "My credit card was charged twice for the same order."
-  - T2: "I would like to update my billing information for my account."
-  - T3: "The videogames frames per second are too laggy."
-  - T4: "All my game progress got deleted."
-  - T5: "Could you filter out lactose free recipes in the game?" 
+  - T1: My credit card was charged twice for the same order.
+  - T2: I would like to update my billing information for my account.
+  - T3: The videogames frames per second are too laggy.
+  - T4: All my game progress got deleted.
+  - T5: Could you filter out lactose free recipes in the game?
 
   Output: 2 Urgent Tickets 
   - T1: User was charged twice for the same order, indicating a billing error. Next action: Investigate the duplicate charge and issue a refund if necessary.
