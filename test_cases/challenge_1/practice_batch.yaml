@@ -1,0 +1,189 @@
+case_id: practice
+difficulty: batch
+category: challenge_1
+count_check: self_consistency
+practice: true
+source: EuroChef+ Customer Support Messages Dataset (BenTouss/eurochef-cs on Hugging Face), English subset
+tickets:
+- id: T1
+  text: Hello, I'm preparing for a themed dinner party and noticed there's a lack of authentic Eastern European recipes. Could you add more?
+- id: T2
+  text: My son accidentally deleted my 'Christmas Dinner' playlist. Is there any way to recover deleted playlists? I spent weeks curating that.
+- id: T3
+  text: Hi, I'm trying to cast the video to my Samsung TV but the Chromecast icon isn't appearing in the app. My phone is on the same WiFi.
+- id: T4
+  text: The German subtitles are missing entirely on several videos in the “Viennese pastry” collection. The subtitle menu only shows EN/FR/NL. Is that expected?
+- id: T5
+  text: The audio quality on the 'Belgian Waffle' recipe video is really poor. It's hard to follow the instructions.
+- id: T6
+  text: The video for 'Dutch Apple Pie' keeps stopping midway on my iPad. My internet connection is stable and other videos work fine. Can you help?
+- id: T7
+  text: The subtitles for the German Pot Roast masterclass are missing the translation for the spices section. I have no idea what to add.
+- id: T8
+  text: Hello, I want to delete my account and all associated data in accordance with GDPR regulations. Please confirm when this is done.
+- id: T9
+  text: Is there a way to filter recipes by 'prep time'? I need quick dinners for weekdays and scrolling takes too long.
+- id: T10
+  text: The shopping list export feature missed half the ingredients for the Risotto recipe. I had to go back to the store!
+- id: T11
+  text: ABSOLUTELY RIDICULOUS SERVICE. The live stream for the Christmas special is down completely. Error 503. My whole family is waiting!!!
+- id: T12
+  text: Hello, I've noticed that the videos on your platform aren't loading in 4K, even though my subscription is active. Is there a fix for this?
+- id: T13
+  text: I've noticed that the Chromecast feature is very buggy. My stream keeps disconnecting, which is really annoying during cooking.
+- id: T14
+  text: 'The ingredient conversion seems wrong: in the “Crème brûlée” recipe it converts 150 g sugar to 150 oz when I switch to imperial. I’m pretty sure that’s a bug. Can you check the unit conversion logic?'
+- id: T15
+  text: My video keeps buffering at 720p even though I have a 500mbps connection. This only happens on your site, Netflix works fine. Please fix this.
+- id: T16
+  text: I've been trying to upgrade to a Premium account, but I keep getting an error message when entering my payment details. Help!
+- id: T17
+  text: The 'Add to Calendar' feature for live events isn't working on Android. Nothing happens when I tap the button.
+- id: T18
+  text: How do I upgrade from the Free tier to Premium? The button in the settings menu is greyed out.
+- id: T19
+  text: Hi EuroChef+ support, I'm on Premium and my downloads keep disappearing. I downloaded “Boeuf Bourguignon (Chef Laurent Girard)” for offline use, watched half, then on the train it says “Download expired” even though I downloaded it yesterday. iPhone 15, iOS 17.3. Is there a limit or a bug?
+- id: T20
+  text: My video keeps buffering at exactly 12:04 in the Chocolate Soufflé video. I've tried clearing cache and different browsers. It's definitely the video file.
+- id: T21
+  text: I'm trying to log in from my holiday home in Spain but it says 'Region blocked'. I thought EU portability was law? Please fix this.
+- id: T22
+  text: The “step-by-step” mode keeps auto-pausing at the wrong moments in the ‘Pâte à choux basics’ lesson (Chef Luca Bernardi). It pauses mid-sentence rather than at the step markers. Watching on iPhone app v6.3.1.
+- id: T23
+  text: How do I delete my watch history? My husband and I share an account and I don't want him to see I'm learning to make his birthday cake!
+- id: T24
+  text: I need help urgently. My account was charged for a year of Premium, but it shows I’m still on the Free tier. This needs fixing ASAP!
+- id: T25
+  text: Hello, I recently upgraded to Premium but still see ads during the videos. I expected an ad-free experience. Can you fix this ASAP?
+- id: T26
+  text: Hi there, I noticed that the nutritional information is missing for the entire Vegan Desserts section. As a diabetic, I need to know the sugar content before I cook.
+- id: T27
+  text: Hi, I recently upgraded to Premium, but I still see ads while streaming. Can you help me fix this?
+- id: T28
+  text: Can you please add more gluten-free baking recipes? The current selection is very limited.
+- id: T29
+  text: 'My Premium account shows ‘Playback not allowed in your region’ when I’m in Belgium (Brussels). I’m literally at home on Proximus Wi‑Fi. Error: GEO-03. Started today. Please help.'
+- id: T30
+  text: I've been charged twice this month! Once on the 1st and again on the 15th. Please check my account and refund the duplicate charge ASAP.
+- id: T31
+  text: I love the masterclasses but sometimes the audio doesn't sync with the video. It's not every time, but it's annoying when it happens.
+- id: T32
+  text: My daughter deleted my profile by mistake. Is there any way to restore my favorites list? I had saved over 100 recipes.
+- id: T33
+  text: Hi, I'm trying to update my credit card details but the 'Save' button is greyed out. My subscription expires tomorrow and I don't want to lose access.
+- id: T34
+  text: Hi, my kid accidentally deleted my entire playlist. Is there a way to recover it? It took me months to curate!
+- id: T35
+  text: I tried using AirPlay to stream to my Apple TV, but it doesn't seem to connect. I've checked my internet connection and it's stable. Is there a known issue with this?
+- id: T36
+  text: Hello EuroChef+, when is the next live session scheduled? I don't want to miss it! Can you send reminders?
+- id: T37
+  text: The audio on the 'Mastering Macarons' video is completely silent for the last 5 minutes. I missed the baking instructions.
+- id: T38
+  text: Hello, we're hosting a culinary workshop next month and need multiple accounts for my team. How can we set this up efficiently?
+- id: T39
+  text: I’m on the free plan and the ads are *way* louder than the actual cooking video audio. Is there any setting to normalize volume, or is this only fixed on Premium? It’s waking up my baby at night…
+- id: T40
+  text: Hi, I've been a Premium member for over a year and recently my account was downgraded to Free without my consent. Could you please resolve this issue quickly?
+- id: T41
+  text: I am considering upgrading to Premium mainly for the ad-free experience. Could you tell me more about the exclusive content available?
+- id: T42
+  text: Hello, I’m on the free tier and I can’t tell which recipes are available without clicking each one. Could you add a label in search results (Free vs Premium) so it’s clearer?
+- id: T43
+  text: I represent the Culinary Arts Department at Manchester College. We are interested in an enterprise license for our students and faculty.
+- id: T44
+  text: 'Subtitles issue: in the “Belgian Waffles (Liège style)” video, the English subtitles keep switching back to French after each ad break (I’m on the free tier, Android). Can you fix the language preference sticking?'
+- id: T45
+  text: Hi, we’re a restaurant group in Rotterdam with an Enterprise plan. We’d like to restrict access so staff can only view playlists we curate (no random browsing during service). Is there any ‘kiosk’ or admin restriction mode?
+- id: T46
+  text: Can you please add a feature to generate a shopping list for multiple recipes at once? I plan my meals for the week and doing it one by one is tedious.
+- id: T47
+  text: I was charged for a full year subscription yesterday but I selected monthly! This is a mistake, please refund me the difference ASAP.
+- id: T48
+  text: Hi there, I'd love to see more content on Eastern European cuisines, specifically Polish or Hungarian recipes. The current selection is very Western-centric.
+- id: T49
+  text: Do you have any plans to include unit conversions for US cups? I struggle with the grams and milliliters.
+- id: T50
+  text: The subtitles for the German Schnitzel video are terrible. They translate 'Butterschmalz' as just 'butter', which ruins the frying technique!
+- id: T51
+  text: I'm getting 'Error 503' when trying to access the live cooking session. Is the server down?
+- id: T52
+  text: I cancelled during the trial on the same day, but my account still shows “Premium renewal on Feb 1”. I don’t want to be charged. Can you confirm it’s cancelled properly?
+- id: T53
+  text: Could you please explain why my last payment failed, even though there's enough balance in my account? I need to resolve this ASAP.
+- id: T54
+  text: I’m on the free tier and I’m confused about unit conversion. Some recipes switch °C to °F but the oven timings don’t update (e.g., “Bake 20 min at 180°C” becomes “356°F” but still says 20 min). Is that expected?
+- id: T55
+  text: I recently switched from Free to Premium, but I'm still seeing ads. Could you fix this? It's quite annoying.
+- id: T56
+  text: I'm trying to download the 'Beef Wellington' tutorial for offline viewing on my flight, but the download button is greyed out even though I have a Premium account. Please assist ASAP.
+- id: T57
+  text: Hey, I was wondering if you guys are planning to add nutritional information to the recipes? I need to track my macros.
+- id: T58
+  text: Can I share my account with my sister who lives in a different house? Or do I need to upgrade to a family plan?
+- id: T59
+  text: Could you please add a feature to screen awake while the recipe video is playing? My phone keeps locking while I'm chopping vegetables.
+- id: T60
+  text: Hello, I represent a culinary arts college in Dublin. We are interested in an enterprise package for 50 students and 5 faculty members. Do you support LMS integration?
+- id: T61
+  text: 'Content request: do you have any proper Romanian recipes (sarmale, ciorbă de burtă) or a chef from Romania? I searched but only found one short clip.'
+- id: T62
+  text: The 4K option is missing on my Apple TV 4K even though I’m Premium. It caps at HD and looks soft. On my iPhone I can select 4K. Any settings I should check?
+- id: T63
+  text: 'Urgent: the Saturday live session won’t start for me. I get “Playback error: LIVE-201” on web (Chrome, Windows 11). My internet is stable and other sites work. I’ve got students waiting in class.'
+- id: T64
+  text: Hi there, I'd love to see more content focused on traditional Polish cuisine. Pierogi, Bigos, that sort of thing. The current Eastern European selection is a bit thin.
+- id: T65
+  text: I'm a free user and I was wondering if the Premium download feature works on laptops or just mobile devices?
+- id: T66
+  text: My son accidentally deleted my profile. Is there any way to restore my saved playlists and favorites? I had over 100 recipes saved...
+- id: T67
+  text: Could you add more Portuguese content (Azores, Madeira, and traditional fish stews)? The Spain/France sections are great but Portugal feels underrepresented.
+- id: T68
+  text: Is there a way to filter recipes by 'Gluten-Free' AND 'Dairy-Free' at the same time? Currently I can only select one filter.
+- id: T69
+  text: Love the app! Just wondering if you have any plans to add Portuguese cuisine? I'm dying to learn how to make authentic Pastéis de Nata.
+- id: T70
+  text: Hello, I represent a culinary arts college in Dublin. We are interested in an enterprise license for our 200 students. Do you offer academic discounts?
+- id: T71
+  text: The 'Download' button is greyed out on all videos today. I'm a Premium subscriber and my subscription is active until December.
+- id: T72
+  text: I represent a culinary college in Dublin. We are interested in purchasing bulk licenses for our 200 students for the upcoming semester.
+- id: T73
+  text: I run a small restaurant group (Enterprise). We need a way to restrict profiles by language (kitchen staff should default to FR/NL subtitles). Is there an admin setting for that? If not, can you log it as a request?
+- id: T74
+  text: I accidentally subscribed to the annual plan instead of the monthly one yesterday. Can you please switch it back and refund the difference? I haven't watched anything yet.
+- id: T75
+  text: Could you add an option for users to comment on recipes or share tips? It would enhance community interaction.
+- id: T76
+  text: Hi support, Step-by-step mode seems broken on my Apple TV. It pauses after step 1 and then the “Next step” button does nothing. Tried on the “Ratatouille Provençale – Chef Camille Roux” video. Apple TV 4K (tvOS 17). Any workaround?
+constraints_shown_to_student:
+- Classify each ticket as Urgent or Routine based on its content
+- 'For Urgent tickets only, output one markdown bullet: ticket ID, one-sentence issue summary (under 20 words), and a suggested next action'
+- Routine tickets are not shown individually, only counted
+- 'End with exactly one line: ''X of 76 tickets required urgent action.'' where X equals the number of bullets above'
+- 'No other text: only the bullets and the final count line'
+ground_truth:
+  urgent_ids_definite:
+  - T11
+  - T16
+  - T21
+  - T24
+  - T25
+  - T29
+  - T30
+  - T33
+  - T34
+  - T40
+  - T47
+  - T51
+  - T52
+  - T53
+  - T56
+  - T63
+  - T66
+grading_weights:
+  classification_accuracy: 0.6
+  format_compliance: 0.2
+  count_matches_own_list: 0.2
+trials: 1
