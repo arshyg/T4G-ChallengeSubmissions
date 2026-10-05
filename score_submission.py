@@ -99,7 +99,7 @@ def call_model(prompt):
     response = client.chat.completions.create(
         model=MODEL,
         messages=[{"role": "user", "content": prompt}],
-        max_tokens=8192,
+        max_tokens=32768,
     )
     return response.choices[0].message.content
 
