@@ -204,8 +204,8 @@ function main() {
     process.exit(args.help ? 0 : 1);
   }
 
-  if (!process.env.OPENROUTER_API_KEY) {
-    console.error("OPENROUTER_API_KEY is not set. Set it in your environment before running the benchmark.");
+  if (!process.env.GEMINI_API_KEY && !process.env.OPENROUTER_API_KEY) {
+    console.error("GEMINI_API_KEY is not set. Get a free key at https://aistudio.google.com and set it before running the benchmark.");
     process.exit(1);
   }
 
@@ -216,6 +216,10 @@ function main() {
     process.exit(1);
   }
 
+  // Practice runs default to the free Gemini Flash model; Pro isn't on the free tier.
+  if (process.env.GEMINI_API_KEY && !process.env.BENCHMARK_MODEL) {
+    process.env.BENCHMARK_MODEL = "gemini-3.5-flash";
+  }
   const practiceCaseFiles = findPracticeCaseFiles(root, args.challenge);
   if (practiceCaseFiles.length === 0) {
     console.error(`No practice cases found for challenge "${args.challenge}".`);

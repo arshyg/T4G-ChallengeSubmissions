@@ -9,7 +9,7 @@ against that challenge's graded test cases and updates the leaderboard.
 ```
 teams/<challenge>/_template/skill.md    # copy this to start
 teams/<challenge>/<your-team>/skill.md  # your submission
-test_cases/<challenge>/practice.yaml    # practice cases you can test against
+test_cases/<challenge>/practice_batch.yaml  # practice cases you can test against
 graders/                                # the exact scoring logic used for real grading
 score_submission.py, run_all.py, ...    # the grading harness
 bin/benchmark.js                        # local practice runner (npm run benchmark)
@@ -35,11 +35,11 @@ with different tickets.
 
 ## 2. Practice locally (doesn't affect the leaderboard)
 
-Needs Node.js, Python 3, and your own [OpenRouter](https://openrouter.ai) API key.
+Needs Node.js, Python 3, and a free Gemini API key from [Google AI Studio](https://aistudio.google.com) (Get API key → Create API key). Practice runs use the free `gemini-3.5-flash` model; the official leaderboard is scored centrally on Gemini 3.1 Pro, so practice scores may differ.
 
 ```
 npm install
-OPENROUTER_API_KEY=... npm run benchmark -- --skill teams/challenge_1/<your-team>/skill.md --challenge challenge_1
+GEMINI_API_KEY=... npm run benchmark -- --skill teams/challenge_1/<your-team>/skill.md --challenge challenge_1
 ```
 
 This scores your skill on the practice cases using the same model and
@@ -101,9 +101,19 @@ tickets each, about 16 urgent). Each batch is scored out of 10:
 | Count | 20% | X on the count line equals the number of bullets |
 
 Your score is the total across the 3 batches as a percentage. "Urgent" is
-defined by the dataset's own labels; `test_cases/challenge_1/practice.yaml`
+defined by the dataset's own labels; `test_cases/challenge_1/practice_batch.yaml`
 has 76 labeled tickets (`ground_truth.urgent_ids_definite`) you can study.
 The exact rules are in `graders/grader_challenge_1.py`.
 
 Data: [EuroChef+ Customer Support Messages](https://huggingface.co/datasets/BenTouss/eurochef-cs)
 (English tickets only).
+
+### Troubleshooting
+
+| Error | Fix |
+|---|---|
+| `401 ACCESS_TOKEN_TYPE_UNSUPPORTED` | Create a new key in AI Studio and use that |
+| `429 ... limit: 0` | That model isn't on the free tier; leave `BENCHMARK_MODEL` unset or use `gemini-3.5-flash` |
+| `503 ... high demand` | Google is busy; wait a minute and run again |
+
+Never commit your API key or paste it into a file in the repo.

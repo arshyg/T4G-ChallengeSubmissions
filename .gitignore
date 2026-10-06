@@ -1,0 +1,18 @@
+# Local benchmark runner (npm run benchmark)
+node_modules/
+package-lock.json
+.benchmark-cache/
+.benchmark-venv/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Grading output
+results/
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/

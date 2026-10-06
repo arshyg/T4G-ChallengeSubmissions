@@ -11,9 +11,31 @@ from constants import DEFAULT_CASE_POINTS, DIFFICULTY_POINTS, MODEL, REQUIRED_SK
 from graders import GRADERS
 
 
+def describe_yaml_error(error):
+    # Students hit this most often from an unquoted ": " inside a value, or
+    # instructions text that isn't indented under "instructions: |", so point
+    # at the exact spot instead of surfacing a raw PyYAML traceback.
+    mark = getattr(error, "problem_mark", None)
+    problem = getattr(error, "problem", None) or str(error)
+    location = f" at line {mark.line + 1}, column {mark.column + 1}" if mark else ""
+    return (
+        f"skill.md is not valid YAML{location}: {problem}. "
+        "Put long or colon-containing values in an indented block under \"key: |\" or \"key: >\"."
+    )
+
+
 def load_skill(skill_path):
-    with open(skill_path, "r") as f:
-        skill = yaml.safe_load(f)
+    parse_error = None
+    try:
+        with open(skill_path, "r") as f:
+            skill = yaml.safe_load(f)
+    except yaml.YAMLError as e:
+        skill = None
+        parse_error = describe_yaml_error(e)
+
+    if skill is not None and not isinstance(skill, dict):
+        parse_error = "skill.md must be a YAML mapping with name, description, and instructions keys"
+        skill = None
 
     skill_dir = os.path.dirname(skill_path)
     team_name = os.path.basename(os.path.normpath(skill_dir)) if skill_dir else "Unknown Team"
@@ -22,10 +44,13 @@ def load_skill(skill_path):
         "team_name": team_name,
         "instructions": skill.get("instructions", "") if skill else "",
         "raw": skill or {},
+        "parse_error": parse_error,
     }
 
 
 def validate_skill(skill):
+    if skill["parse_error"]:
+        return False, skill["parse_error"]
     for field in REQUIRED_SKILL_FIELDS:
         if not skill["raw"].get(field):
             return False, f"Missing required field: {field}"
@@ -129,9 +154,16 @@ def main():
             f.write(state_hash)
 
     is_valid, error = validate_skill(skill)
+    invalid_path = os.path.join(args.out, f"{skill['team_name']}.invalid")
+    output_path = os.path.join(args.out, f"{skill['team_name']}.csv")
+
+    # Clear the previous run's opposite outcome, so a since-fixed skill isn't
+    # still reported invalid (and a now-broken one doesn't keep its old score).
+    stale_path = output_path if not is_valid else invalid_path
+    if os.path.exists(stale_path):
+        os.remove(stale_path)
 
     if not is_valid:
-        invalid_path = os.path.join(args.out, f"{skill['team_name']}.invalid")
         with open(invalid_path, "w") as f:
             f.write(error)
         print(f"Skill validation failed: {error}")
@@ -162,7 +194,6 @@ def main():
             "response": best_response,
         })
 
-    output_path = os.path.join(args.out, f"{skill['team_name']}.csv")
     with open(output_path, "w", newline="") as f:
         writer = csv.DictWriter(f, fieldnames=["case_id", "score", "max_points", "response"])
         writer.writeheader()
