@@ -11,12 +11,13 @@ instructions: |
   - Urgent: anything involving data loss, billing errors, security issues, or a customer explicitly saying they want to cancel.
   - Routine: everything else, including general questions and minor bugs.
 
-  Then, output only the Urgent tickets. For each one, give a one-sentence summary of the issue.
+  Output only the urgent tickets, one markdown bullet each, in this exact form:
+  - T<n>: <one-sentence summary, under 20 words>. Next action: <suggested action>.
 
-  End your response with a line in this exact format:
-  Total Urgent: N
+  End with exactly this line and nothing after it:
+  X of N tickets required urgent action.
+  where N is the number of tickets given and X is the number of bullets you wrote.
 
-  Make sure N matches the number of Urgent tickets you actually listed above.
 example:
   input: |
     Ticket 1: "My credit card was charged twice for the same order."
