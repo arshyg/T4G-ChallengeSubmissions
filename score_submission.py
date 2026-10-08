@@ -3,7 +3,10 @@ import csv
 import glob
 import hashlib
 import os
+import sys
+import time
 
+import openai
 import yaml
 
 import graders
@@ -95,12 +98,42 @@ def compute_state_hash(skill_path, cases_path):
     return hasher.hexdigest()
 
 
+# Overloaded / rate-limited providers (e.g. Gemini's free tier returning
+# "503 high demand") usually recover within a minute or two, so wait and retry
+# rather than recording the failure as a score of 0.
+RETRYABLE_STATUS_CODES = {429, 500, 502, 503, 504}
+RETRY_DELAYS_SECONDS = [5, 15, 30, 60]
+
+
+class ModelUnavailableError(Exception):
+    """Every trial for a case failed to get a response from the model."""
+
+
+def _is_retryable(error):
+    if isinstance(error, (openai.APIConnectionError, openai.APITimeoutError)):
+        return True
+    if isinstance(error, openai.APIStatusError) and error.status_code in RETRYABLE_STATUS_CODES:
+        # Gemini's "429 ... limit: 0" means the model isn't on the free tier at
+        # all; waiting won't help.
+        return "limit: 0" not in str(error)
+    return False
+
+
 def call_model(prompt):
-    response = client.chat.completions.create(
-        model=MODEL,
-        messages=[{"role": "user", "content": prompt}],
-    )
-    return response.choices[0].message.content
+    for attempt, delay in enumerate([0] + RETRY_DELAYS_SECONDS):
+        if delay:
+            print(f"  Model unavailable, retrying in {delay}s ({attempt}/{len(RETRY_DELAYS_SECONDS)})...")
+            time.sleep(delay)
+        try:
+            response = client.chat.completions.create(
+                model=MODEL,
+                messages=[{"role": "user", "content": prompt}],
+            )
+            return response.choices[0].message.content
+        except Exception as e:
+            if not _is_retryable(e) or attempt == len(RETRY_DELAYS_SECONDS):
+                raise
+            print(f"  {e}")
 
 
 def score_case(case, skill):
@@ -113,16 +146,22 @@ def score_case(case, skill):
     trials = case.get("trials", 1)
     best_fraction = 0.0
     best_response = ""
+    last_error = None
+    succeeded = 0
     for _ in range(trials):
         try:
             response_text = call_model(prompt)
         except Exception as e:
             print(f"Trial failed for case {case.get('case_id')}: {e}")
+            last_error = e
             continue
+        succeeded += 1
         fraction = grader.score(case, response_text)
         if fraction >= best_fraction:
             best_fraction = fraction
             best_response = response_text
+    if succeeded == 0:
+        raise ModelUnavailableError(str(last_error))
     return best_fraction, best_response
 
 
@@ -172,6 +211,7 @@ def main():
 
     cases = load_cases(args.cases)
     rows = []
+    unavailable_cases = []
 
     for case in cases:
         if case.get("practice"):
@@ -182,6 +222,9 @@ def main():
 
         try:
             best_fraction, best_response = score_case(case, skill)
+        except ModelUnavailableError:
+            unavailable_cases.append(case["case_id"])
+            continue
         except Exception as e:
             print(f"Error processing case {case['case_id']}: {e}")
             rows.append({"case_id": case["case_id"], "score": 0, "max_points": max_points, "response": ""})
@@ -193,6 +236,16 @@ def main():
             "max_points": max_points,
             "response": best_response,
         })
+
+    # A model outage isn't the skill's fault: don't record a 0 or cache this
+    # state, so the next run (or tomorrow's scheduled run) grades it for real.
+    if unavailable_cases:
+        print(
+            f"\nCouldn't get a response from the model for {', '.join(unavailable_cases)}, "
+            "so nothing was scored or saved. The model is probably overloaded or your API "
+            "key/credits have a problem; check the errors above and run again in a minute."
+        )
+        sys.exit(2)
 
     with open(output_path, "w", newline="") as f:
         writer = csv.DictWriter(f, fieldnames=["case_id", "score", "max_points", "response"])
