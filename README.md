@@ -7,10 +7,12 @@ against that challenge's graded test cases and updates the leaderboard.
 ## Layout
 
 ```
-teams/<challenge>/_template/skill.md    # copy this to start
-teams/<challenge>/<your-team>/skill.md  # your submission
-test_cases/<challenge>/practice_batch.yaml  # practice cases you can test against
+teams/<challenge>/_template/           # copy this to start
+teams/<challenge>/<your-team>/          # your submission (skill.md, or a pipeline for challenge_1b)
+test_cases/<challenge>/practice*.yaml   # practice cases you can test against
 graders/                                # the exact scoring logic used for real grading
+pipeline/                               # challenge_1b pipeline runner and its provided scripts
+validate_submission.py                  # checks your team folder the way the grader will
 score_submission.py, run_all.py, ...    # the grading harness
 bin/benchmark.js                        # local practice runner (npm run benchmark)
 ```
@@ -42,27 +44,43 @@ npm install
 GEMINI_API_KEY=... npm run benchmark -- --skill teams/challenge_1/<your-team>/skill.md --challenge challenge_1
 ```
 
+For Challenge 1b, pass your team folder instead:
+
+```
+GEMINI_API_KEY=... npm run benchmark -- --pipeline teams/challenge_1b/<your-team> --challenge challenge_1b
+```
+
 This scores your skill on the practice cases using the same model and
 grader as the real run. The first run sets up a local Python environment
 automatically. Re-running with nothing changed is free; add `--force` to re-grade anyway.
 
 ## 3. Submit
 
-Commit **only** your `skill.md`, push to your fork, and open a pull request
-into this repo's `main` branch.
+Commit **only** files inside your team folder, push to your fork, and open
+a pull request into this repo's `main` branch. Use one PR per challenge:
 
-A check runs on your PR and merges it automatically if:
+- Challenge 1: `teams/challenge_1/<your-team>/skill.md`
+- Challenge 1b: `teams/challenge_1b/<your-team>/`, containing `pipeline.yaml`,
+  `triage.md`, `checker.md`, and `router.md`, plus `normalize.md` if your
+  pipeline uses it. Use the same team name as in Challenge 1.
 
-- it changes exactly one file, `teams/<challenge>/<your-team>/skill.md`
-- the challenge is open
-- the file is valid YAML with `name`, `description`, and `instructions`
-- `instructions` contains the challenge's placeholder
-- the team folder is new, or was first submitted by you
+Before you open the PR, run the same check the merge uses (no API key needed):
 
-If the check fails it comments on the PR explaining why. Fix it and push to
-the same PR.
+```
+python validate_submission.py teams/<challenge>/<your-team>
+```
 
-To update your submission later, open a new PR that edits the same file.
+Submission PRs are merged on a schedule once the deadline passes, then once
+a day, so other teams can't read your files early. A PR is merged only if:
+
+- every file it changes is inside one team folder, `teams/<challenge>/<your-team>/`
+- for Challenge 1b, the folder passes `validate_submission.py`
+
+A PR that changes anything outside your team folder is left for a TA to
+review. A Challenge 1b PR that fails the check stays open with a comment
+explaining why. Fix it and push to the same PR.
+
+To update your submission later, open a new PR that edits the same files.
 Your best score across all days counts. Submitted skills are public, so
 other teams can read yours once it's merged.
 
@@ -107,6 +125,61 @@ The exact rules are in `graders/grader_challenge_1.py`.
 
 Data: [EuroChef+ Customer Support Messages](https://huggingface.co/datasets/BenTouss/eurochef-cs)
 (English tickets only).
+
+---
+
+## Challenge 1b: Ticket triage pipeline
+
+Turn your Challenge 1 skill into a pipeline of small skills. It triages
+150 mixed-language tickets (English, French, Dutch and German), routes each
+urgent one to a team, and stays within **20 model calls per batch**.
+
+**Your folder:** `teams/challenge_1b/<your-team>/`. Copy it from
+`teams/challenge_1b/_template/`.
+
+| File | Placeholders | Must return |
+|---|---|---|
+| `triage.md` | `{tickets}` | one `T<n> \| summary \| next action` line per urgent ticket (summary under 20 words, in English), or `NONE` |
+| `checker.md` | `{tickets}`, `{triage_output}` | `PASS`, or `FAIL` then one `- T<n> ...` line per disputed ticket |
+| `router.md` | `{urgent_tickets}` | one `T<n> \| team` line per ticket; team is `billing`, `technical`, `account` or `other` |
+| `normalize.md` (optional) | `{tickets}` | the same `T<n>: <text>` lines, same IDs, same order |
+
+`pipeline.yaml` wires them together, with the steps in this order (only
+`normalize` is optional):
+
+```yaml
+name: TriagePipeline
+steps:
+  - split: {chunk_size: 50}                         # 10-150 tickets per chunk
+  - triage: triage.md
+  - verify: {checker: checker.md, max_retries: 1}   # 1-2
+  - route: router.md
+  - render_report
+```
+
+The worst case is chunks × 2 × (max_retries + 1) + 1 calls, plus one per
+chunk if you use `normalize`, and it must be 20 or fewer. The provided
+`check_triage` script checks every triage reply's format before your
+checker sees it. `render_report` writes the final report and the count
+line. Tickets your checker still disputes after the last retry go to a
+"Needs review" list instead of being guessed. The runner is in
+`pipeline/`.
+
+**Scoring.** Your pipeline runs once on each of 3 hidden batches of 150
+tickets (30 urgent each). Each batch is scored out of 100:
+
+| Part | Weight | What's checked |
+|------|-------:|----------------|
+| Classification | 50% | +1 each urgent ticket listed, +0.5 each urgent ticket sent to review, −0.5 each routine ticket listed, −0.1 each routine ticket sent to review; divided by the number of urgent tickets, floored at 0 |
+| Routing | 25% | share of the truly urgent tickets you listed that went to a team the ticket's labels accept |
+| Efficiency | 15% | full credit at 8 calls or fewer, falling linearly to 0 at 20 |
+| Contract compliance | 10% | share of your skills' output lines that matched their format on the first try |
+
+`test_cases/challenge_1b/practice.yaml` has 150 labeled tickets
+(`ground_truth.urgent_ids` and `ground_truth.teams`). The practice run
+prints each part's score and writes a readable trace per batch: read it,
+since retries, violations and dropped lines are where points leak. The
+exact rules are in `graders/grader_challenge_1b.py`.
 
 ### Troubleshooting
 

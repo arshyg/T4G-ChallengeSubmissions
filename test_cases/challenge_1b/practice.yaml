@@ -1,0 +1,589 @@
+case_id: practice
+difficulty: batch
+category: challenge_1b
+practice: true
+points: 100
+source: EuroChef+ Customer Support Messages Dataset (BenTouss/eurochef-cs on Hugging Face), all four languages, excluding every challenge_1 ticket
+tickets:
+- id: T1
+  language: French
+  text: Je suis un restaurateur de Paris et je suis intéressé par les masterclasses de chefs étoilés que vous proposez. Comment puis-je en bénéficier dans le cadre de mon entreprise ?
+- id: T2
+  language: French
+  text: J'aimerais beaucoup voir des recettes de cocktails pour accompagner les plats. Des accords mets-vins ou mets-cocktails seraient un vrai plus !
+- id: T3
+  language: Dutch
+  text: Ik probeer de ondertiteling in te schakelen, maar het lijkt niet te werken op de app op mijn tablet. Kunnen jullie dit probleem onderzoeken?
+- id: T4
+  language: German
+  text: Wir betreiben ein Boutique-Hotel in München und würden gerne EuroChef+ auf den TVs in unseren 20 Suiten anbieten. Gibt es da ein Business-Paket?
+- id: T5
+  language: Dutch
+  text: DIT IS BELACHELIJK! Ik probeer al drie dagen mijn wachtwoord te resetten maar ik ontvang nooit de email. Ik betaal voor een service die ik niet kan gebruiken!
+- id: T6
+  language: French
+  text: J’aimerais savoir s'il est possible de télécharger les vidéos en 4K pour les visionner hors ligne. La qualité est importante pour moi.
+- id: T7
+  language: Dutch
+  text: De video van de sauerbraten stopt altijd na 15 minuten. Kan dit opgelost worden? Ik kan zo niet verder koken!
+- id: T8
+  language: French
+  text: Je trouve que la qualité sonore de certaines vidéos est assez médiocre. Je ne peux pas entendre clairement les instructions du chef. Pourriez-vous y remédier ?
+- id: T9
+  language: German
+  text: Guten Tag, ich kann meine Zahlungsmethode nicht aktualisieren. Die Seite lädt einfach neu, ohne die neuen Kreditkartendaten zu speichern.
+- id: T10
+  language: French
+  text: 'Bonjour l’équipe EuroChef+,
+
+
+    Depuis hier soir je n’arrive plus à télécharger des vidéos pour le mode hors ligne (Premium). J’ai essayé avec la masterclass “Boeuf Bourguignon – Chef Alain Vermeulen” : le téléchargement reste bloqué à 3% puis affiche “Download failed (DWN-12)”.
+
+
+    App iOS 17.2 sur iPhone 14, stockage OK (20 Go libres), Wi‑Fi fibre. J’ai déjà redémarré l’app et le téléphone, et je me suis déconnectée/reconnectée.
+
+
+    Pouvez-vous vérifier ? J’en ai besoin pour un trajet en train demain matin.'
+- id: T11
+  language: French
+  text: J'ai été débité deux fois ce mois-ci pour mon abonnement Premium. C'est inacceptable, et j'aimerais un remboursement rapide.
+- id: T12
+  language: Dutch
+  text: Kunnen we alsjeblieft meer recepten krijgen voor de Airfryer? Dat is nu heel populair.
+- id: T13
+  language: French
+  text: Bonjour, nous sommes le restaurant 'Le Petit Bistrot' à Lyon. Nous aimerions utiliser vos vidéos de formation pour nos trois apprentis en cuisine. Avez-vous une offre groupée pour les professionnels ?
+- id: T14
+  language: Dutch
+  text: De kwaliteit van de video's lijkt achteruit te gaan sinds de laatste update. Mijn internetverbinding is zoals altijd, maar de resolutie is erg laag. Is er een probleem bij jullie?
+- id: T15
+  language: German
+  text: Wir betreiben ein Hotel in Berlin und würden gerne EuroChef+ auf den Smart-TVs in unseren Suiten anbieten. Gibt es dafür eine gewerbliche Lizenz?
+- id: T16
+  language: French
+  text: Je souhaiterais savoir si vous allez inclure plus de recettes de la région Rhône-Alpes. J'adore cette cuisine et ce serait fantastique d'apprendre plus.
+- id: T17
+  language: German
+  text: 'Guten Tag, ich habe ein Problem mit der Untertitel-Auswahl: Bei der Serie „Alpine Küche“ kann ich DE zwar auswählen, aber nach jedem Wechsel zur nächsten Folge springt es wieder auf EN zurück. Browser: Chrome 121 auf Windows 10. Können Sie das bitte prüfen?'
+- id: T18
+  language: French
+  text: Bonjour, est-ce possible d’avoir une option pour trier les favoris par “temps de préparation” ou “difficulté” ? J’ai une longue liste et je ne retrouve rien. Merci.
+- id: T19
+  language: French
+  text: Ce serait génial si on pouvait filtrer les recettes par 'temps de préparation'. Parfois j'ai juste 20 minutes pour cuisiner.
+- id: T20
+  language: French
+  text: Impossible d'accéder à mon compte depuis mon nouveau téléphone Android. Ça me marque « erreur de connexion ». Besoin d'aide au plus vite!
+- id: T21
+  language: English
+  text: I was promised a refund last month but haven't received it yet. Can you update me on the status? This is getting frustrating.
+- id: T22
+  language: French
+  text: Nous gérons une chaîne de 5 restaurants et voulons standardiser nos recettes via votre plateforme. Peut-on créer des playlists privées partagées entre nos comptes ?
+- id: T23
+  language: Dutch
+  text: Ik krijg steeds foutmelding 202 als ik probeer te streamen via Chromecast. Ik heb de app al opnieuw geïnstalleerd en mijn router gereset, maar niets helpt. Graag hulp.
+- id: T24
+  language: French
+  text: Je n'arrive pas à modifier mon adresse email dans les paramètres, le champ est grisé. J'ai changé de fournisseur d'accès.
+- id: T25
+  language: French
+  text: Pourriez-vous ajouter plus de contenu sur la cuisine corse ? Il y a tellement de spécialités comme le fiadone ou les cannelloni au brocciu qui manquent à votre catalogue.
+- id: T26
+  language: French
+  text: Pourriez-vous ajouter plus de contenu sur la cuisine savoyarde ? Je cherche une vraie recette de Tartiflette traditionnelle et je ne trouve que des variantes modernes.
+- id: T27
+  language: Dutch
+  text: Kunnen jullie de video's ook beschikbaar maken met Nederlandse audio in plaats van alleen ondertitels? Voor mijn kinderen is dat makkelijker.
+- id: T28
+  language: French
+  text: Remboursez-moi ! La qualité vidéo est horrible, on dirait une VHS. Inacceptable en 2023.
+- id: T29
+  language: French
+  text: J'ai un problème avec la recette des Carbonades Flamandes. La liste des ingrédients mentionne de la bière brune, mais la vidéo montre clairement une bière blonde. Lequel dois-je utiliser ?
+- id: T30
+  language: French
+  text: Bonjour, je ne trouve pas l'option pour ajouter un nouveau mode de paiement sur mon compte. Pourriez-vous m'indiquer comment faire ?
+- id: T31
+  language: French
+  text: Bonjour, je suis en plein milieu de la recette du Paris-Brest pour l'anniversaire de mon mari et l'application a planté. Impossible de la relancer sur mon iPad, ça tourne dans le vide. C'est assez urgent, la pâte à choux attend !!
+- id: T32
+  language: French
+  text: Bonjour, je souhaite modifier l'adresse e-mail associée à mon compte, mais je ne trouve pas l'option dans les paramètres. Pouvez-vous m'aider?
+- id: T33
+  language: French
+  text: Bonjour, je suis sur l’offre gratuite et je voulais savoir si la conversion automatique g/oz et °C/°F est incluse ou c’est uniquement Premium ? Je cuisine souvent avec des recettes UK/US, donc ça m’aiderait beaucoup.
+- id: T34
+  language: Dutch
+  text: Hallo, ik probeer de app te installeren op mijn nieuwe Samsung Smart TV, maar ik kan EuroChef+ nergens vinden in de app store. Wordt mijn model (2018) niet meer ondersteund?
+- id: T35
+  language: French
+  text: J'ai reçu un mail me disant que mon compte a été suspendu pour activité suspecte ? Je ne comprends pas, je n'ai rien fait.
+- id: T36
+  language: French
+  text: Pourriez-vous ajouter une option pour partager les recettes directement sur les réseaux sociaux ? Je pense que ça plairait à beaucoup d'utilisateurs.
+- id: T37
+  language: German
+  text: Guten Tag, ich habe mein Passwort vergessen und die Zurücksetzen-Funktion sendet keinen Link an meine E-Mail. Das ist sehr ärgerlich.
+- id: T38
+  language: French
+  text: Pourquoi la qualité vidéo de vos live sessions est-elle si mauvaise ces derniers temps ? Nous payons pour du contenu en 4K et ce n'est pas ce que nous obtenons. C'est vraiment décevant.
+- id: T39
+  language: French
+  text: Salut, j'adore vos vidéos mais j'aimerais voir plus d'options pour les personnes suivant un régime sans gluten. Prévoyez-vous d'ajouter cela bientôt ?
+- id: T40
+  language: French
+  text: Pourquoi je ne peux pas voir les vidéos en HD ? Je suis en compte gratuit mais la qualité 360p c'est vraiment trop bas pour voir les détails des recettes sur une tablette.
+- id: T41
+  language: Dutch
+  text: 'Goedendag,
+
+
+    Sinds de laatste update crasht de app elke keer als ik “stap-voor-stap” aanzet. Het gebeurt bij “Sauerbraten – Chef Krüger” rond stap 5. iPadOS 17.3.
+
+
+    Kunnen jullie dit asap fixen? Ik gebruik dit in de keuken.'
+- id: T42
+  language: French
+  text: SVP ajoutez une section pour les cocktails et les accords mets-vins ! Ce serait un super complément aux recettes.
+- id: T43
+  language: French
+  text: Bonjour, j'ai besoin d'une facture avec TVA pour ma société concernant les prélèvements de janvier à mars. Celles disponibles dans mon espace client sont simplifiées et mon comptable les refuse.
+- id: T44
+  language: French
+  text: Nous sommes une chaîne de restaurants basée à Lyon et nous aimerions former nos équipes de cuisine avec vos vidéos. Proposez-vous des tarifs de groupe pour environ 50 accès ?
+- id: T45
+  language: French
+  text: C'est nul ! Je n'arrive pas à me désabonner depuis hier. Le lien tourne dans le vide. Je ne veux pas payer un mois de plus !!
+- id: T46
+  language: French
+  text: Nous sommes un groupe de 5 restaurants basés à Lyon et nous aimerions utiliser vos Masterclasses pour la formation continue de nos commis. Existe-t-il une offre groupée ?
+- id: T47
+  language: English
+  text: This is getting ridiculous. 4K streams look like 480p on my LG Smart TV app, but on my laptop it’s crisp. Same network, same account. If you can’t deliver what Premium promises, I want a refund for this month.
+- id: T48
+  language: French
+  text: Je ne trouve pas l'option pour changer la langue des sous-titres dans la vidéo de la tarte Tatin. Cela a toujours fonctionné avant! Y a-t-il un problème?
+- id: T49
+  language: Dutch
+  text: Ik probeer de app te gebruiken op mijn Android-tablet, maar hij blijft crashen. Zijn er bekende problemen met deze combinatie?
+- id: T50
+  language: Dutch
+  text: Hallo, ik ontvang geen ontvangstbewijzen meer voor mijn maandelijkse betalingen. Kunt u ervoor zorgen dat ik deze weer elke maand krijg?
+- id: T51
+  language: Dutch
+  text: Hallo, kunnen jullie uitleggen waarom mijn favoriete video's niet offline beschikbaar zijn, zelfs niet met een Premium abonnement? Dit is erg frustrerend tijdens mijn treinreizen.
+- id: T52
+  language: French
+  text: Il y a une erreur dans la liste des ingrédients pour la Tarte Tatin. Ça indique 500g de sucre alors que le chef dit clairement 150g dans la vidéo. J'ai gâché mon caramel !
+- id: T53
+  language: French
+  text: 'Salut, petite remarque côté sous-titres : sur l’épisode « Carbonnade flamande – version grand-mère » les sous-titres FR traduisent « cassonade » par « sucre roux » et ça change un peu le sens (et la quantité). À 06:40 on voit bien « cassonade brune ». Possible de corriger ?'
+- id: T54
+  language: French
+  text: 'Bonjour, petite question facturation : je suis passée de l’offre mensuelle Premium à l’annuelle hier soir, mais dans mon espace compte je vois encore “renouvellement mensuel” et j’ai reçu un reçu de 9,99€ seulement. Est-ce normal (prorata) ou est-ce que l’upgrade n’a pas été pris en compte ? Merci.'
+- id: T55
+  language: German
+  text: Guten Tag, ich bin Free-User und würde gern wissen, ob es demnächst mehr Inhalte zur österreichischen Küche gibt (z.B. Tafelspitz oder Kaiserschmarrn) und idealerweise mit deutschen Untertiteln. Danke!
+- id: T56
+  language: French
+  text: Avez-vous prévu d'ajouter plus de spécialités bretonnes ? Je cherche une bonne recette de Kouign-Amann authentique et je ne trouve rien.
+- id: T57
+  language: French
+  text: Bonjour, je suis en train de suivre la session de cuisine en direct et il y a constamment des coupures audio. Mon internet marche bien pourtant. Que puis-je faire ?
+- id: T58
+  language: Dutch
+  text: Hallo, ik probeer al dagen de video van 'Krokante zuurkool' te bekijken, maar de ondertitels ontbreken. Kunt u dit oplossen?
+- id: T59
+  language: Dutch
+  text: Hoi, ik probeer de app te installeren op mijn nieuwe Android TV, maar ik krijg steeds de melding dat het apparaat niet compatibel is. Het is nochtans een model van 2023.
+- id: T60
+  language: Dutch
+  text: Hallo, is het mogelijk om de interface in het Nederlands te zetten maar de video's in het Engels te houden? Ik vind de Nederlandse nasynchronisatie vreselijk.
+- id: T61
+  language: French
+  text: Bonjour, je suis intolérante au gluten et je galère à trouver des recettes “sans gluten” qui soient vraiment filtrées (il me propose des vidéos avec farine de blé). Est-ce que vous pouvez améliorer le filtre ou ajouter un tag “gluten-free certifié” ?
+- id: T62
+  language: English
+  text: My shopping list disappeared after the last app update. I had ingredients for a dinner party saved there!
+- id: T63
+  language: Dutch
+  text: Ik krijg foutmelding “E-403 region locked” als ik probeer te kijken vanuit Spanje (vakantie). Ik ben Belg en Premium. Is dit normaal? Jullie site zegt toch dat het in Europa werkt?
+- id: T64
+  language: German
+  text: Ich habe Schwierigkeiten, die Videos in 4K zu streamen. Es puffert ständig, obwohl meine Internetverbindung stark ist.
+- id: T65
+  language: Dutch
+  text: DIT IS WAARDELOOS. De app crasht elke keer als ik wil casten naar mijn Chromecast. Ik betaal hier niet voor niets voor!! Los dit op.
+- id: T66
+  language: Dutch
+  text: Ik probeer mijn wachtwoord te resetten, maar ontvang nooit de e-mail. Kunnen jullie dit controleren?
+- id: T67
+  language: English
+  text: I'm extremely disappointed. The 4K streaming is constantly buffering on my LG TV despite my gigabit connection. Other apps work fine. Fix this or I cancel.
+- id: T68
+  language: French
+  text: Bonjour l’équipe EuroChef+, je suis Premium et je n’arrive plus à télécharger les vidéos pour le mode hors-ligne. Sur mon iPhone 14 (iOS 17.2), le téléchargement de la masterclass “Boeuf Bourguignon – Chef Marc Delattre” reste bloqué à 0% puis affiche “Download failed (D-12)”. J’ai déjà essayé en Wi‑Fi et en 5G, redémarré l’app et le téléphone. Vous pouvez vérifier côté compte ? J’ai un train demain matin, j’en ai vraiment besoin.
+- id: T69
+  language: Dutch
+  text: 'Dit is echt ON-AANVAARDBAAR: ik heb gisteren opgezegd en vandaag is er toch €9,99 afgeschreven. Ik wil meteen mijn geld terug, anders betwist ik de betaling bij mijn bank.'
+- id: T70
+  language: Dutch
+  text: 'Dit is echt onaanvaardbaar: ik heb net een jaarabonnement genomen en nu krijg ik ‘Payment reversed’ in de app en ben ik ineens terug free. Het bedrag is wel van mijn rekening. Los dit vandaag op.'
+- id: T71
+  language: French
+  text: J'ai reçu une carte cadeau pour un an d'abonnement mais je ne trouve pas l'endroit où rentrer le code promo sur la page de paiement. Pouvez-vous m'aider ?
+- id: T72
+  language: Dutch
+  text: De ondertiteling bij de Masterclass van Chef Dubois loopt niet gelijk met het beeld. Het scheelt zeker 5 seconden, heel irritant om te volgen.
+- id: T73
+  language: French
+  text: 'Bonsoir, pendant la masterclass “Boeuf Bourguignon – Chef Élodie Martin”, le mode “pas à pas” saute des étapes : après l’étape 6 ça passe direct à l’étape 9. Sur Android (Pixel 7) version app 5.4.1. Vous pouvez corriger ?'
+- id: T74
+  language: English
+  text: Hey, the download button is missing from the mobile app since the last update. I pay for Premium specifically for this feature.
+- id: T75
+  language: Dutch
+  text: Graag zou ik een functie zien om recepten te printen zonder de grote foto's, om inkt te besparen.
+- id: T76
+  language: French
+  text: J'ai changé d'adresse mail professionnelle, comment mettre à jour mon compte sans perdre mes playlists et mes favoris ?
+- id: T77
+  language: German
+  text: Hallo, ich würde gerne wissen, ob es Pläne gibt, die EuroChef+ App für Samsung Smart TVs anzubieten. Das wäre sehr praktisch!
+- id: T78
+  language: German
+  text: Wir betreiben eine Kochschule in Berlin und hätten Interesse an einem Firmenzugang für unsere Kursteilnehmer. Können Sie uns ein Angebot machen?
+- id: T79
+  language: French
+  text: Votre application a besoin de plus d'options pour filtrer les recettes par temps de préparation. Ce serait très utile pour les gens pressés.
+- id: T80
+  language: Dutch
+  text: De audio loopt niet synchroon met het beeld op mijn Samsung Galaxy S23 (Android 14). Het is ongeveer 1 seconde vertraging, vooral bij de live herhaling van zaterdag. Op wifi en 4G hetzelfde. Kunnen jullie dit fixen?
+- id: T81
+  language: Dutch
+  text: Zou het mogelijk zijn om de boodschappenlijst direct naar de Jumbo of Albert Heijn app te exporteren? Dat zou veel tijd schelen.
+- id: T82
+  language: French
+  text: 'Bonjour, j’ai changé d’adresse email et je n’arrive plus à la mettre à jour : quand je valide, j’ai “Something went wrong” sans plus de détails. Testé sur Safari iPad et sur PC Windows. Pouvez-vous modifier l’email côté support ?'
+- id: T83
+  language: German
+  text: Ich bin ein Restaurantbesitzer und möchte wissen, ob es möglich ist, EuroChef+ auf mehreren Geräten gleichzeitig zu nutzen. Haben Sie spezielle Pläne dafür?
+- id: T84
+  language: French
+  text: Bonjour, je suis étudiant en cuisine et je n'ai pas les moyens pour l'abonnement Premium. Est-ce qu'il y a des réductions pour les étudiants ?
+- id: T85
+  language: French
+  text: Bonjour, je travaille dans un restaurant à Marseille et je cherche à savoir si vous proposez des abonnements professionnels adaptés à une équipe de cuisine.
+- id: T86
+  language: Dutch
+  text: Ik heb gisteren geüpgraded naar Premium maar ik zie nog steeds advertenties en de kwaliteit blijft 720p. In mijn profiel staat wel ‘Premium actief’. iPhone 13, iOS 17.1. Kunnen jullie mijn account refreshen?
+- id: T87
+  language: French
+  text: Pourriez-vous ajouter une fonction pour exclure les allergènes (comme les arachides) des résultats de recherche ? Ce serait très utile pour ma famille.
+- id: T88
+  language: French
+  text: C'est n'importe quoi ! J'ai annulé mon essai gratuit hier et je vois un débit de 9,99€ ce matin. REMBOURSEZ-MOI IMMÉDIATEMENT ou je fais opposition !
+- id: T89
+  language: Dutch
+  text: Ik ben mijn wachtwoord vergeten en de reset-email komt maar niet binnen. Ik heb ook al in mijn spamfolder gekeken.
+- id: T90
+  language: Dutch
+  text: De recepten van de chef in de video 'Carbonnade Flamande' lijken niet overeen te komen met de ingrediëntenlijst. Kunnen jullie dit nakijken?
+- id: T91
+  language: Dutch
+  text: Het zou geweldig zijn om een functie te hebben waarmee we recepten kunnen delen met vrienden via WhatsApp direct vanuit de app.
+- id: T92
+  language: French
+  text: Bonjour, je n'arrive pas à accéder à mon compte malgré la réinitialisation du mot de passe. C'est stressant car j'ai un dîner à préparer ce soir avec vos recettes.
+- id: T93
+  language: German
+  text: Die Mengenangaben beim 'Schwarzwälder Kirschtorte'-Rezept sind verwirrend. Einmal steht da ml und dann plötzlich oz. Bitte korrigieren Sie das.
+- id: T94
+  language: German
+  text: Wir betreiben eine Kochschule in Berlin und hätten Interesse an einer Lizenz für unsere Kurse. Können wir die Videos öffentlich vorführen?
+- id: T95
+  language: German
+  text: Guten Tag, ich habe ein Problem mit dem Abspielen der Videos auf meinem Android-Gerät. Der Ton läuft, aber das Bild bleibt stehen. Bitte um Hilfe.
+- id: T96
+  language: Dutch
+  text: Kunnen jullie meer recepten voor lactosevrije desserts toevoegen? Mijn familie heeft lactose-intolerantie en we zijn op zoek naar nieuwe ideeën.
+- id: T97
+  language: French
+  text: J'ai besoin de votre aide immédiatement ! Je suis en train de cuisiner pour un événement et votre site ne fonctionne plus. C'est une catastrophe !!
+- id: T98
+  language: French
+  text: Bonjour, je suis chef formateur au restaurant 'Le Petit Bistrot' à Nantes. Avez-vous une offre spécifique pour donner accès à mes 5 commis de cuisine ?
+- id: T99
+  language: German
+  text: Guten Tag, die Wiedergabe auf meinem Laptop wird ständig von Werbung unterbrochen, obwohl ich Premium-Abonnent bin. Was ist da los?
+- id: T100
+  language: Dutch
+  text: Bij het recept voor de Limburgse vlaai staat dat de oven op 200 graden moet, maar in de video zegt de chef duidelijk 180 graden. Wat is het nu?
+- id: T101
+  language: French
+  text: Coucou, j’adore vos documentaires culinaires. Est-ce que vous avez prévu une série sur la cuisine basque (axoa, ttoro, gâteau basque) ? Je ne trouve que 2 vidéos en recherche. Merci :)
+- id: T102
+  language: French
+  text: Je ne comprends pas pourquoi j'ai été débité de 9,99€ alors que j'avais annulé mon essai gratuit hier soir. Je demande un remboursement immédiat, je n'ai même pas regardé une seule vidéo en entier.
+- id: T103
+  language: German
+  text: Könnten Sie bitte mehr traditionelle österreichische Mehlspeisen aufnehmen? Ein richtiger Kaiserschmarrn oder Marillenknödel fehlen mir im Angebot.
+- id: T104
+  language: French
+  text: Dans la recette de la Blanquette de Veau à l'ancienne, l'étape 3 mentionne d'ajouter la crème, mais la vidéo montre le chef ajouter le bouillon. C'est confusant pour un débutant.
+- id: T105
+  language: German
+  text: Ich habe bemerkt, dass die Videoqualität bei Verwendung von AirPlay stark abnimmt. Ist das ein bekanntes Problem?
+- id: T106
+  language: German
+  text: Hallo, ich bekomme beim Bezahlen des Premium-Abos immer „Payment failed (P-07)“. Kreditkarte ist gültig, andere Online-Zahlungen funktionieren. Können Sie schauen, ob Ihr System meine Bank blockt? Ich würde heute noch das Dessert-Menü üben.
+- id: T107
+  language: German
+  text: Guten Tag, ich habe ein Problem mit der Zahlung meines Premium-Abonnements. Es scheint, dass der Betrag zweimal abgebucht wurde. Bitte um Klärung.
+- id: T108
+  language: German
+  text: Können Sie mir bitte erklären, warum mein Abonnementpreis von 9,99€ auf 12,99€ gestiegen ist, ohne dass ich benachrichtigt wurde? Das ist inakzeptabel.
+- id: T109
+  language: French
+  text: Pourriez-vous m'envoyer une facture acquittée pour mes trois derniers mois d'abonnement ? J'en ai besoin pour ma comptabilité pro.
+- id: T110
+  language: German
+  text: 'Guten Tag, ich habe ein Problem mit AirPlay: Wenn ich ein Video (z.B. „Coq au vin – Grundlagen“) vom iPhone auf meinen Samsung TV streame, kommt nach ca. 5 Minuten die Meldung „Playback error A-07“ und der Stream stoppt. Im WLAN ist alles stabil. Können Sie bitte helfen?'
+- id: T111
+  language: Dutch
+  text: Ik krijg error 404 als ik probeer in te loggen op mijn iPad. Op mijn telefoon werkt het wel. Graag hulp.
+- id: T112
+  language: Dutch
+  text: Hallo, kan ik de video's ook op een andere resolutie downloaden? De huidige resolutie neemt te veel ruimte in op mijn apparaat.
+- id: T113
+  language: French
+  text: Je n'arrive plus à me connecter à mon compte. J'ai changé de téléphone et maintenant l'appli me dit 'identifiants incorrects' alors que je suis sûr de mon mot de passe.
+- id: T114
+  language: Dutch
+  text: De video van de 'Ratatouille Provençale' pauzeert automatisch na elke stap, maar ik heb niet de stap-voor-stap modus ingeschakeld. Hoe zet ik dit uit?
+- id: T115
+  language: French
+  text: C'est la troisième fois que la vidéo du 'Soufflé au Grand Marnier' plante à l'étape 4 !! J'ai des invités qui arrivent dans une heure, c'est urgent ! Je suis sur l'appli TV Samsung.
+- id: T116
+  language: German
+  text: Guten Tag, ich möchte mein Abonnement auf 'Premium' upgraden, aber meine Kreditkarte wird ständig abgelehnt.
+- id: T117
+  language: Dutch
+  text: Kunnen jullie alsjeblieft een optie toevoegen om playlists te delen met vrienden (linkje) zonder dat ze mijn hele profiel zien? Zou handig zijn voor onze kookclub.
+- id: T118
+  language: Dutch
+  text: Beste, ik zie een dubbele afschrijving op mijn creditcardafschrift van deze maand. Een keer op de 1e en een keer op de 15e. Dit klopt niet.
+- id: T119
+  language: Dutch
+  text: Hey, zouden jullie een filter kunnen toevoegen voor ‘lactosevrij’ bij zoeken op dieet? Ik zie wel vegetarisch/vegan, maar lactosevrij ontbreekt. Zou echt handig zijn.
+- id: T120
+  language: Dutch
+  text: 'Ik kan niet meer inloggen op de website: na het invullen van mijn wachtwoord krijg ik meteen ‘Something went wrong (AUTH-14)’. In de app op mijn telefoon lukt het wel. Browser: Chrome 121 op Windows 11.'
+- id: T121
+  language: French
+  text: Je reprends des cours de cuisine et je trouve votre contenu super. Pourriez-vous ajouter davantage de vidéos sur les techniques de base de cuisson ? Merci !
+- id: T122
+  language: Dutch
+  text: Zouden jullie meer recepten uit Zeeland kunnen toevoegen? Denk aan bolus, mosselen op verschillende manieren, etc. Ik vind vooral Franse klassiekers (wel top trouwens).
+- id: T123
+  language: Dutch
+  text: 'Hallo,
+
+
+    Ik wil mijn e-mailadres wijzigen omdat ik mijn oude werkmail niet meer heb. Alleen: de bevestigingsmail komt nooit aan (ook niet in spam).
+
+
+    Kunnen jullie het e-mailadres manueel aanpassen als ik mijn identiteit bevestig?'
+- id: T124
+  language: French
+  text: C'EST INADMISSIBLE ! Ça fait une semaine que le streaming est pixelisé le soir. Je paie pour de la 4K, pas pour de la bouillie de pixels ! REMBOURSEZ-MOI !
+- id: T125
+  language: German
+  text: 'Ich möchte eine Rückerstattung: Ich habe das Jahresabo abgeschlossen, aber in meiner Rechnung steht trotzdem zusätzlich ein Monatsbetrag. Insgesamt wurden 129,99€ + 9,99€ abgebucht. Das kann nicht stimmen. Bitte um schnelle Klärung und Rückzahlung des zu viel gezahlten Betrags.'
+- id: T126
+  language: German
+  text: Guten Tag, ich benötige für unser Restaurant (Enterprise) eine Sammelrechnung für Q4/2025 mit unserer UID. Im Portal finde ich nur einzelne Monatsbelege. Können Sie mir helfen?
+- id: T127
+  language: Dutch
+  text: Ik probeer de 'Wiener Schnitzel' video te bekijken, maar hij blijft vastlopen op mijn Samsung Smart TV. Kunnen jullie dit snel oplossen?
+- id: T128
+  language: French
+  text: Je reçois une erreur 'Region Lock' quand j'essaie de regarder depuis mes vacances en Espagne. Je pensais que l'abonnement fonctionnait partout en Europe ?
+- id: T129
+  language: French
+  text: Le son est décalé par rapport à l'image sur la vidéo 'Les secrets de la Bouillabaisse'. C'est très perturbant pour suivre les instructions du chef.
+- id: T130
+  language: Dutch
+  text: Als ik een recept zoek met mijn dieetvoorkeuren, werkt de filter niet goed. Kunnen jullie dit probleem oplossen?
+- id: T131
+  language: German
+  text: Die App auf meinem Fire TV Stick stürzt ständig ab, sobald ich ein 4K-Video starte. Das ist sehr ärgerlich bei dem Preis.
+- id: T132
+  language: French
+  text: Je voudrais savoir comment exporter la liste de courses vers mon application de notes sur iPhone ? Je ne trouve pas le bouton.
+- id: T133
+  language: Dutch
+  text: Goedendag, ik wilde graag weten of er binnenkort meer masterclasses van vrouwelijke chefs komen. Er lijken er niet veel te zijn op het platform.
+- id: T134
+  language: French
+  text: Bonjour, je souhaite changer l'adresse email associée à mon compte car je n'ai plus accès à mon ancienne boîte mail professionnelle. Comment procéder sans perdre mes favoris ?
+- id: T135
+  language: French
+  text: Nous sommes un restaurant bistronomique situé à Lyon et nous aimerions former nos 5 commis avec vos vidéos techniques. Avez-vous une offre groupée pour les professionnels ?
+- id: T136
+  language: Dutch
+  text: Wij zijn een kookschool in Antwerpen en overwegen om EuroChef+ te gebruiken voor onze lessen. Heeft u informatie over de Enterprise-abonnementen?
+- id: T137
+  language: Dutch
+  text: Ik heb net Premium genomen, maar de downloadknop ontbreekt bij sommige video’s. Bij “Sauerbraten – Rheinland” kan ik wel downloaden, bij “Belgische wafels – basisrecept” niet. Is dat bewust of een fout?
+- id: T138
+  language: Dutch
+  text: Zou het mogelijk zijn om een optie toe te voegen voor het delen van favoriete playlists met vrienden? Dat zou geweldig zijn!
+- id: T139
+  language: French
+  text: Je souhaite annuler mon abonnement premium, mais la page de gestion des abonnements ne fonctionne pas. J'ai besoin de votre aide pour éviter des prélèvements supplémentaires.
+- id: T140
+  language: French
+  text: Pourquoi n'y a-t-il pas plus de chefs femmes dans vos sélections ? C'est très masculin comme contenu...
+- id: T141
+  language: Dutch
+  text: Sinds de laatste update werkt de Chromecast-functionaliteit niet meer goed. De verbinding valt steeds weg en dat is erg storend.
+- id: T142
+  language: French
+  text: Bonjour, j'ai un problème avec ma facture du mois dernier où j'ai été facturé deux fois. Pourriez-vous s'il vous plaît vérifier cela ?
+- id: T143
+  language: Dutch
+  text: Wij zijn een culinair opleidingscentrum in Antwerpen (Enterprise). Kunnen jullie SSO (Azure AD) aanbieden? Wachtwoorden beheren voor 60 cursisten is echt een gedoe.
+- id: T144
+  language: French
+  text: 'Salut, petite question : est-ce qu’on peut mettre les sous-titres en NL sur l’app Apple TV ? Sur mon iPad je les vois, mais sur Apple TV (tvOS 17) je n’ai que FR/EN, même sur des recettes belges. Merci !'
+- id: T145
+  language: Dutch
+  text: Kunnen jullie meer Nederlandse ondertitels toevoegen bij de Italiaanse masterclasses? Ik versta het wel een beetje, maar met NL subs zou ik veel meer oppikken. Geen haast, maar zou top zijn.
+- id: T146
+  language: Dutch
+  text: Hoi, zouden jullie een filter kunnen toevoegen voor ‘zonder alcohol’? Bij veel Franse sauzen zit wijn/porto en ik kook voor kinderen. Nu moet ik alles handmatig openklikken.
+- id: T147
+  language: French
+  text: Salut l'équipe, je suis en train de suivre la recette du Tiramisu et le pas-à-pas ne se déclenche pas automatiquement après la première étape. Pouvez-vous m'aider ?
+- id: T148
+  language: French
+  text: Je suis très déçu. J'ai payé pour voir la Masterclass du Chef Lignac et elle n'est pas disponible dans ma région (Belgique). Ce n'était pas précisé avant l'achat.
+- id: T149
+  language: French
+  text: Je souhaiterais annuler mon abonnement immédiatement, car je n'ai plus l'usage de votre service. Comment dois-je procéder ?
+- id: T150
+  language: French
+  text: La vidéo 'Techniques de découpe du poisson' n'a pas de son à partir de la 4ème minute. J'ai essayé sur Chrome et Safari, même problème. C'est gênant pour suivre les instructions.
+constraints_shown_to_student:
+- Triage returns one 'T<n> | summary | next action' line per urgent ticket, or NONE
+- Summaries are under 20 words and in English, whatever the ticket's language
+- The checker returns PASS, or FAIL followed by one '- T<n> ...' line per disputed ticket
+- The router returns one 'T<n> | team' line per urgent ticket; team is billing, technical, account or other
+- Worst case stays within 20 model calls per batch
+ground_truth:
+  urgent_ids:
+  - T5
+  - T7
+  - T10
+  - T11
+  - T20
+  - T31
+  - T35
+  - T37
+  - T38
+  - T41
+  - T45
+  - T57
+  - T68
+  - T69
+  - T70
+  - T86
+  - T92
+  - T97
+  - T99
+  - T106
+  - T115
+  - T118
+  - T124
+  - T125
+  - T127
+  - T128
+  - T139
+  - T141
+  - T147
+  - T149
+  teams:
+    T5:
+    - account
+    T7:
+    - technical
+    T10:
+    - technical
+    T11:
+    - billing
+    T20:
+    - technical
+    T31:
+    - billing
+    - technical
+    T35:
+    - account
+    T37:
+    - account
+    T38:
+    - technical
+    T41:
+    - technical
+    T45:
+    - billing
+    - technical
+    T57:
+    - technical
+    T68:
+    - technical
+    T69:
+    - billing
+    T70:
+    - billing
+    T86:
+    - billing
+    - technical
+    T92:
+    - account
+    T97:
+    - technical
+    T99:
+    - billing
+    T106:
+    - billing
+    T115:
+    - billing
+    - technical
+    T118:
+    - billing
+    - technical
+    T124:
+    - billing
+    - technical
+    T125:
+    - billing
+    T127:
+    - technical
+    T128:
+    - account
+    - technical
+    T139:
+    - billing
+    T141:
+    - technical
+    T147:
+    - technical
+    T149:
+    - account
+grading_weights:
+  classification: 0.5
+  routing: 0.25
+  efficiency: 0.15
+  compliance: 0.1
