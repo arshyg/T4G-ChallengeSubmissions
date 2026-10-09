@@ -10,7 +10,6 @@ MODEL = os.environ.get(
     "BENCHMARK_MODEL",
     "gemini-3.1-pro-preview" if USE_GEMINI_DIRECT else "google/gemini-3.1-pro-preview",
 )
-REQUIRED_SKILL_FIELDS = ["name", "description", "instructions"]
 
 # Harder cases are worth fewer points: they're graded on softer signals
 # (self-consistency, borderline classifications) so a partial-credit miss

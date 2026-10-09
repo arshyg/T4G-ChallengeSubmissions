@@ -6,7 +6,9 @@ name: Auto-merge submissions
 #   - After that: once a day at the same time.
 # A PR is only merged if every file it changes is inside ONE team folder
 # (teams/<challenge>/<team>/). Anything else gets the "needs-review" label
-# and is left for a human.
+# and is left for a human. A challenge_1b (pipeline) folder must also pass
+# validate_submission.py; if it doesn't, the PR stays open with a comment
+# giving the reason, so the team can push a fix to the same PR.
 
 on:
   schedule:
@@ -34,6 +36,17 @@ jobs:
   merge:
     runs-on: ubuntu-latest
     steps:
+      # main's own code validates the PR's files; nothing from the PR is run.
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - run: pip install pyyaml
+
       - name: Merge submission PRs
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -69,6 +82,25 @@ jobs:
               gh pr edit "$pr" --add-label "$REVIEW_LABEL"
               gh pr comment "$pr" --body "Thanks for submitting! This PR changes files outside your team folder (\`teams/<challenge>/<your-team>/\`), so it wasn't merged automatically. Please only change files in your own team folder, or wait for a TA to review it."
               skipped=$((skipped + 1)); continue
+            fi
+
+            if [[ "$folder" == teams/challenge_1b/* ]]; then
+              sha=$(gh pr view "$pr" --json headRefOid --jq .headRefOid)
+              git fetch -q origin "pull/$pr/head:pr-$pr"
+              tmp=$(mktemp -d)
+              git archive "pr-$pr" "$folder" | tar -x -C "$tmp"
+              if ! result=$(python validate_submission.py "$tmp/$folder"); then
+                echo "PR #$pr: $result"
+                # One comment per pushed version, not one per day.
+                if ! gh pr view "$pr" --json comments --jq '.comments[].body' | grep -q "$sha"; then
+                  gh pr comment "$pr" --body "Your pipeline wasn't merged because it failed the submission check:
+
+          > $result
+
+          Fix it and push to this same PR; it's checked again at the next merge run. You can run the same check yourself with \`python validate_submission.py $folder\`. (checked $sha)"
+                fi
+                failed=$((failed + 1)); continue
+              fi
             fi
 
             if gh pr merge "$pr" --squash; then

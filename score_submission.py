@@ -10,54 +10,10 @@ import openai
 import yaml
 
 import graders
-from constants import DEFAULT_CASE_POINTS, DIFFICULTY_POINTS, MODEL, REQUIRED_SKILL_FIELDS, client
+import pipeline
+from constants import DEFAULT_CASE_POINTS, DIFFICULTY_POINTS, MODEL, client
 from graders import GRADERS
-
-
-def describe_yaml_error(error):
-    # Students hit this most often from an unquoted ": " inside a value, or
-    # instructions text that isn't indented under "instructions: |", so point
-    # at the exact spot instead of surfacing a raw PyYAML traceback.
-    mark = getattr(error, "problem_mark", None)
-    problem = getattr(error, "problem", None) or str(error)
-    location = f" at line {mark.line + 1}, column {mark.column + 1}" if mark else ""
-    return (
-        f"skill.md is not valid YAML{location}: {problem}. "
-        "Put long or colon-containing values in an indented block under \"key: |\" or \"key: >\"."
-    )
-
-
-def load_skill(skill_path):
-    parse_error = None
-    try:
-        with open(skill_path, "r") as f:
-            skill = yaml.safe_load(f)
-    except yaml.YAMLError as e:
-        skill = None
-        parse_error = describe_yaml_error(e)
-
-    if skill is not None and not isinstance(skill, dict):
-        parse_error = "skill.md must be a YAML mapping with name, description, and instructions keys"
-        skill = None
-
-    skill_dir = os.path.dirname(skill_path)
-    team_name = os.path.basename(os.path.normpath(skill_dir)) if skill_dir else "Unknown Team"
-
-    return {
-        "team_name": team_name,
-        "instructions": skill.get("instructions", "") if skill else "",
-        "raw": skill or {},
-        "parse_error": parse_error,
-    }
-
-
-def validate_skill(skill):
-    if skill["parse_error"]:
-        return False, skill["parse_error"]
-    for field in REQUIRED_SKILL_FIELDS:
-        if not skill["raw"].get(field):
-            return False, f"Missing required field: {field}"
-    return True, None
+from skills import load_skill, validate_skill
 
 
 def discover_case_files(cases_path):
@@ -79,18 +35,35 @@ def load_cases(cases_path):
 
 
 def graders_fingerprint():
+    # The pipeline runner and skill loader decide scores too, so a change to
+    # either re-grades just like a grader change does.
     hasher = hashlib.sha256()
-    graders_dir = os.path.dirname(graders.__file__)
-    for path in sorted(glob.glob(os.path.join(graders_dir, "*.py"))):
+    code_paths = (
+        glob.glob(os.path.join(os.path.dirname(graders.__file__), "*.py"))
+        + glob.glob(os.path.join(os.path.dirname(pipeline.__file__), "*.py"))
+        + [os.path.join(os.path.dirname(os.path.abspath(__file__)), "skills.py")]
+    )
+    for path in sorted(code_paths):
         with open(path, "rb") as f:
             hasher.update(f.read())
     return hasher.hexdigest()
 
 
-def compute_state_hash(skill_path, cases_path):
+def submission_files(submission_path):
+    if os.path.isfile(submission_path):
+        return [submission_path]
+    return sorted(
+        os.path.join(submission_path, name) for name in os.listdir(submission_path)
+        if os.path.isfile(os.path.join(submission_path, name))
+    )
+
+
+def compute_state_hash(submission_path, cases_path):
     hasher = hashlib.sha256()
-    with open(skill_path, "rb") as f:
-        hasher.update(f.read())
+    for path in submission_files(submission_path):
+        hasher.update(os.path.basename(path).encode())
+        with open(path, "rb") as f:
+            hasher.update(f.read())
     for case_file in discover_case_files(cases_path):
         with open(case_file, "rb") as f:
             hasher.update(f.read())
@@ -136,6 +109,17 @@ def call_model(prompt):
             print(f"  {e}")
 
 
+def pipeline_call_model(prompt):
+    # Retries are exhausted by now. An outage aborts the batch (so it isn't
+    # scored); any other error reads as an empty reply in the trace.
+    try:
+        return call_model(prompt)
+    except Exception as e:
+        if _is_retryable(e):
+            raise pipeline.ModelUnavailable(str(e))
+        raise
+
+
 def score_case(case, skill):
     grader = GRADERS.get(case.get("category"))
     if grader is None:
@@ -165,9 +149,33 @@ def score_case(case, skill):
     return best_fraction, best_response
 
 
+PIPELINE_COMPONENTS = ["classification", "routing", "efficiency", "compliance"]
+
+
+def score_pipeline_case(case, config, trace_dir):
+    grader = GRADERS.get(case.get("category"))
+    if grader is None or not getattr(grader, "PIPELINE", False):
+        raise ValueError(f"no pipeline grader registered for category '{case.get('category')}'")
+
+    try:
+        run = pipeline.run_pipeline(config, case["tickets"], pipeline_call_model)
+    except pipeline.ModelUnavailable as e:
+        raise ModelUnavailableError(str(e))
+    fraction, components = grader.score_run(case, run)
+
+    os.makedirs(trace_dir, exist_ok=True)
+    with open(os.path.join(trace_dir, f"{case['case_id']}.txt"), "w") as f:
+        f.write(f"# {config['team_name']} on {case['case_id']}: {fraction:.1%}\n")
+        f.write("# " + ", ".join(f"{key} {value:.1%}" for key, value in components.items()) + "\n\n")
+        f.write(run["trace"])
+    return fraction, components, run
+
+
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--skill", required=True)
+    submission = parser.add_mutually_exclusive_group(required=True)
+    submission.add_argument("--skill", help="A single skill.md (challenge_1)")
+    submission.add_argument("--pipeline", help="A team folder with pipeline.yaml (challenge_1b)")
     parser.add_argument("--cases", required=True)
     parser.add_argument("--out", default="results")
     parser.add_argument(
@@ -176,14 +184,25 @@ def main():
     )
     args = parser.parse_args()
 
-    skill = load_skill(args.skill)
-    state_hash = compute_state_hash(args.skill, args.cases)
-    hash_path = os.path.join(args.out, f"{skill['team_name']}.hash")
+    if args.pipeline:
+        team_name = os.path.basename(os.path.normpath(args.pipeline))
+        try:
+            config = pipeline.load_pipeline(args.pipeline)
+            is_valid, error = True, None
+        except pipeline.PipelineError as e:
+            is_valid, error = False, str(e)
+    else:
+        skill = load_skill(args.skill)
+        team_name = skill["team_name"]
+        is_valid, error = validate_skill(skill)
+
+    state_hash = compute_state_hash(args.pipeline or args.skill, args.cases)
+    hash_path = os.path.join(args.out, f"{team_name}.hash")
 
     if not args.force and os.path.exists(hash_path):
         with open(hash_path) as f:
             if f.read().strip() == state_hash:
-                print(f"No change to skill/cases/grading code for {skill['team_name']}, skipping (use --force to re-grade)")
+                print(f"No change to submission/cases/grading code for {team_name}, skipping (use --force to re-grade)")
                 return
 
     os.makedirs(args.out, exist_ok=True)
@@ -192,9 +211,8 @@ def main():
         with open(hash_path, "w") as f:
             f.write(state_hash)
 
-    is_valid, error = validate_skill(skill)
-    invalid_path = os.path.join(args.out, f"{skill['team_name']}.invalid")
-    output_path = os.path.join(args.out, f"{skill['team_name']}.csv")
+    invalid_path = os.path.join(args.out, f"{team_name}.invalid")
+    output_path = os.path.join(args.out, f"{team_name}.csv")
 
     # Clear the previous run's opposite outcome, so a since-fixed skill isn't
     # still reported invalid (and a now-broken one doesn't keep its old score).
@@ -205,7 +223,7 @@ def main():
     if not is_valid:
         with open(invalid_path, "w") as f:
             f.write(error)
-        print(f"Skill validation failed: {error}")
+        print(f"Submission validation failed: {error}")
         save_hash()
         return
 
@@ -218,7 +236,28 @@ def main():
             print(f"Skipping practice case {case['case_id']} (not graded)")
             continue
 
-        max_points = DIFFICULTY_POINTS.get(case.get("difficulty"), DEFAULT_CASE_POINTS)
+        max_points = case.get("points", DIFFICULTY_POINTS.get(case.get("difficulty"), DEFAULT_CASE_POINTS))
+
+        if args.pipeline:
+            try:
+                fraction, components, run = score_pipeline_case(case, config, os.path.join(args.out, f"{team_name}.traces"))
+            except ModelUnavailableError:
+                unavailable_cases.append(case["case_id"])
+                continue
+            except Exception as e:
+                print(f"Error processing case {case['case_id']}: {e}")
+                rows.append({"case_id": case["case_id"], "score": 0, "max_points": max_points, "response": ""})
+                continue
+            row = {
+                "case_id": case["case_id"],
+                "score": round(fraction * max_points),
+                "max_points": max_points,
+                "response": run["report"],
+                "calls": run["calls"],
+            }
+            row.update({key: round(components[key], 4) for key in PIPELINE_COMPONENTS})
+            rows.append(row)
+            continue
 
         try:
             best_fraction, best_response = score_case(case, skill)
@@ -247,8 +286,11 @@ def main():
         )
         sys.exit(2)
 
+    fieldnames = ["case_id", "score", "max_points", "response"]
+    if args.pipeline:
+        fieldnames += PIPELINE_COMPONENTS + ["calls"]
     with open(output_path, "w", newline="") as f:
-        writer = csv.DictWriter(f, fieldnames=["case_id", "score", "max_points", "response"])
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(rows)
 
