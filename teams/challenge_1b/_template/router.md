@@ -8,12 +8,12 @@ instructions: |
   — the runner inserts one "T<n>: <text>" line per urgent ticket from
   every chunk there.
 
-  Return one line per ticket, exactly:
+  Every urgent ticket needs exactly one line, in this form:
     T<n> | team
-  where team is billing, technical, account or other. Keep it small: one
-  example per team is plenty.]
+  where team is billing, technical, account or other.]
 example:
   input: |
-    [two or three urgent tickets you write yourself]
+    [a few urgent tickets you write yourself. Keep it small: one example
+    per team is plenty.]
   output: |
-    [one "T<n> | team" line each]
+    [one "T<n> | team" line for each of those tickets]
