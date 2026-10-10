@@ -1,0 +1,115 @@
+name: Auto-merge submissions
+
+# Merges students' submission PRs on a schedule, so nothing lands in main
+# (where everyone can read it) before the deadline.
+#   - First merge: the Thursday 11:59 PM deadline (set FIRST_MERGE_UTC below).
+#   - After that: once a day at the same time.
+# A PR is only merged if every file it changes is inside ONE team folder
+# (teams/<challenge>/<team>/). Anything else gets the "needs-review" label
+# and is left for a human. A challenge_1b (pipeline) folder must also pass
+# validate_submission.py; if it doesn't, the PR stays open with a comment
+# giving the reason, so the team can push a fix to the same PR.
+
+on:
+  schedule:
+    # GitHub schedules are in UTC. 06:59 UTC = 11:59 PM Pacific while daylight
+    # saving is on. After Nov 1 change this to '59 7 * * *' to stay at 11:59 PM.
+    # Scheduled runs can start a few minutes late when GitHub is busy.
+    - cron: '59 6 * * *'
+  workflow_dispatch: # "Run workflow" button in the Actions tab, for testing or a manual merge
+
+permissions:
+  contents: write
+  pull-requests: write
+
+env:
+  # UTC date of the first merge. Thursday 11:59 PM Pacific is Friday morning in
+  # UTC, so for a Thursday Oct 15 deadline this is 2026-10-16.
+  FIRST_MERGE_UTC: '2026-10-16'
+  REVIEW_LABEL: needs-review
+
+concurrency:
+  group: auto-merge-submissions
+  cancel-in-progress: false
+
+jobs:
+  merge:
+    runs-on: ubuntu-latest
+    steps:
+      # main's own code validates the PR's files; nothing from the PR is run.
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - run: pip install pyyaml
+
+      - name: Merge submission PRs
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          EVENT: ${{ github.event_name }}
+          BASE: ${{ github.event.repository.default_branch }}
+        run: |
+          set -euo pipefail
+
+          today=$(date -u +%F)
+          if [[ "$EVENT" == "schedule" && "$today" < "$FIRST_MERGE_UTC" ]]; then
+            echo "Before the first deadline ($FIRST_MERGE_UTC UTC). Nothing merged."
+            exit 0
+          fi
+
+          gh label create "$REVIEW_LABEL" --color D93F0B \
+            --description "Auto-merge skipped: needs a human to review" 2>/dev/null || true
+
+          merged=0; skipped=0; failed=0
+          for pr in $(gh pr list --state open --base "$BASE" --limit 300 --json number --jq '.[].number'); do
+            if gh pr view "$pr" --json labels --jq '.labels[].name' | grep -qx "$REVIEW_LABEL"; then
+              echo "PR #$pr: already labeled $REVIEW_LABEL, skipping"
+              skipped=$((skipped + 1)); continue
+            fi
+
+            # The single team folder every changed file must be inside, or INVALID.
+            folder=$(gh pr view "$pr" --json files --jq '.files[].path' | awk -F/ '
+              NF >= 4 && $1 == "teams" && $3 != "" && $3 != "_template" { print $1 "/" $2 "/" $3; next }
+              { print "INVALID" }' | sort -u)
+
+            if [[ -z "$folder" || "$folder" == *INVALID* || $(printf '%s\n' "$folder" | wc -l) -ne 1 ]]; then
+              echo "PR #$pr: changes files outside a single team folder, leaving for review"
+              gh pr edit "$pr" --add-label "$REVIEW_LABEL"
+              gh pr comment "$pr" --body "Thanks for submitting! This PR changes files outside your team folder (\`teams/<challenge>/<your-team>/\`), so it wasn't merged automatically. Please only change files in your own team folder, or wait for a TA to review it."
+              skipped=$((skipped + 1)); continue
+            fi
+
+            if [[ "$folder" == teams/challenge_1b/* ]]; then
+              sha=$(gh pr view "$pr" --json headRefOid --jq .headRefOid)
+              git fetch -q origin "pull/$pr/head:pr-$pr"
+              tmp=$(mktemp -d)
+              git archive "pr-$pr" "$folder" | tar -x -C "$tmp"
+              if ! result=$(python validate_submission.py "$tmp/$folder"); then
+                echo "PR #$pr: $result"
+                # One comment per pushed version, not one per day.
+                if ! gh pr view "$pr" --json comments --jq '.comments[].body' | grep -q "$sha"; then
+                  gh pr comment "$pr" --body "Your pipeline wasn't merged because it failed the submission check:
+
+          > $result
+
+          Fix it and push to this same PR; it's checked again at the next merge run. You can run the same check yourself with \`python validate_submission.py $folder\`. (checked $sha)"
+                fi
+                failed=$((failed + 1)); continue
+              fi
+            fi
+
+            if gh pr merge "$pr" --squash; then
+              echo "PR #$pr: merged ($folder)"
+              merged=$((merged + 1))
+            else
+              echo "PR #$pr: merge failed (conflict or branch protection), leaving open"
+              failed=$((failed + 1))
+            fi
+          done
+
+          echo "Done: $merged merged, $skipped skipped, $failed failed."

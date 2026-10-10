@@ -11,6 +11,7 @@ function parseArgs(argv) {
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i];
     if (arg === "--skill") args.skill = argv[++i];
+    else if (arg === "--pipeline") args.pipeline = argv[++i];
     else if (arg === "--challenge") args.challenge = argv[++i];
     else if (arg === "--force") args.force = true;
     else if (arg === "--help" || arg === "-h") args.help = true;
@@ -21,13 +22,15 @@ function parseArgs(argv) {
 function printHelp() {
   console.log(`
 Usage: npm run benchmark -- --skill <path> --challenge <name> [options]
+       npm run benchmark -- --pipeline <team-folder> --challenge <name> [options]
 
-Runs your skill.md against a challenge's practice cases locally, so you can
-iterate freely before making an official submission. Doesn't touch or
-affect the real leaderboard.
+Runs your skill.md (or, for challenge_1b, your pipeline folder) against a
+challenge's practice cases locally, so you can iterate freely before making
+an official submission. Doesn't touch or affect the real leaderboard.
 
 Options:
-  --skill <path>      Path to your skill.md (required)
+  --skill <path>      Path to your skill.md (challenge_1)
+  --pipeline <path>   Path to your team folder with pipeline.yaml (challenge_1b)
   --challenge <name>  Challenge to practice against, e.g. challenge_1 (required)
   --force             Re-grade even if nothing changed since your last local run
   --help              Show this message
@@ -170,7 +173,7 @@ function printResults(outDir, teamName) {
   const invalidPath = path.join(outDir, `${teamName}.invalid`);
 
   if (fs.existsSync(invalidPath)) {
-    console.log(`\nYour skill is invalid: ${fs.readFileSync(invalidPath, "utf8")}`);
+    console.log(`\nYour submission is invalid: ${fs.readFileSync(invalidPath, "utf8")}`);
     return;
   }
 
@@ -179,18 +182,31 @@ function printResults(outDir, teamName) {
     return;
   }
 
-  const rows = parseCsv(fs.readFileSync(csvPath, "utf8")).slice(1); // drop header
+  const [header, ...rows] = parseCsv(fs.readFileSync(csvPath, "utf8"));
+  // Pipeline results (challenge_1b) carry per-component columns after the
+  // first four; show them so teams can see which part of the score moved.
+  const extraColumns = header.slice(4);
   let totalScore = 0;
   let totalMax = 0;
 
   console.log("\n=== Results (practice — does not count toward the real leaderboard) ===");
-  for (const [caseId, score, maxPoints] of rows) {
+  for (const row of rows) {
+    const [caseId, score, maxPoints] = row;
     const s = Number(score);
     const m = Number(maxPoints);
     totalScore += s;
     totalMax += m;
     const pct = m > 0 ? ((s / m) * 100).toFixed(1) : "0.0";
     console.log(`  ${caseId}: ${s}/${m} (${pct}%)`);
+    const details = extraColumns
+      .map((name, i) => {
+        const value = row[4 + i];
+        if (value === undefined || value === "") return null;
+        return name === "calls" ? `${name} ${value}` : `${name} ${(Number(value) * 100).toFixed(1)}%`;
+      })
+      .filter(Boolean);
+    if (details.length) console.log(`    ${details.join(" · ")}`);
+    if (extraColumns.length && row[3]) console.log(`\n${row[3].replace(/^/gm, "    ")}\n`);
   }
   const totalPct = totalMax > 0 ? ((totalScore / totalMax) * 100).toFixed(1) : "0.0";
   console.log("  ------------------------");
@@ -199,7 +215,7 @@ function printResults(outDir, teamName) {
 
 function main() {
   const args = parseArgs(process.argv.slice(2));
-  if (args.help || !args.skill || !args.challenge) {
+  if (args.help || !(args.skill || args.pipeline) || (args.skill && args.pipeline) || !args.challenge) {
     printHelp();
     process.exit(args.help ? 0 : 1);
   }
@@ -210,9 +226,9 @@ function main() {
   }
 
   const root = repoRoot();
-  const skillPath = path.resolve(args.skill);
-  if (!fs.existsSync(skillPath)) {
-    console.error(`Skill file not found: ${skillPath}`);
+  const submissionPath = path.resolve(args.skill || args.pipeline);
+  if (!fs.existsSync(submissionPath)) {
+    console.error(`${args.skill ? "Skill file" : "Pipeline folder"} not found: ${submissionPath}`);
     process.exit(1);
   }
 
@@ -232,20 +248,24 @@ function main() {
 
   const scorerArgs = [
     path.join(root, "score_submission.py"),
-    "--skill", skillPath,
+    args.skill ? "--skill" : "--pipeline", submissionPath,
     "--cases", stagingDir,
     "--out", outDir,
   ];
   if (args.force) scorerArgs.push("--force");
 
-  console.log(`\nRunning your skill against the ${args.challenge} practice cases...\n`);
+  console.log(`\nRunning your ${args.skill ? "skill" : "pipeline"} against the ${args.challenge} practice cases...\n`);
   const result = spawnSync(venvPython, scorerArgs, { cwd: root, stdio: "inherit" });
   if (result.status !== 0) {
     process.exit(result.status || 1);
   }
 
-  const teamName = path.basename(path.dirname(skillPath));
+  const teamName = args.skill ? path.basename(path.dirname(submissionPath)) : path.basename(submissionPath);
   printResults(outDir, teamName);
+  const traceDir = path.join(outDir, `${teamName}.traces`);
+  if (args.pipeline && fs.existsSync(traceDir)) {
+    console.log(`Traces (read these, not just the score): ${path.relative(process.cwd(), traceDir)}/\n`);
+  }
 }
 
 main();
