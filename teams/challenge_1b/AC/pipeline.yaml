@@ -1,0 +1,10 @@
+name: TriagePipeline
+steps:
+  - split: {chunk_size: 50}                         # 150 tickets -> 3 chunks (10-150)
+  # - normalize: normalize.md                       # optional: +1 call per chunk
+  - triage: triage.md                               # 3 calls
+  - verify: {checker: checker.md, max_retries: 1}   # script check (free), up to 3 checks + 3 retries + 3 re-checks (max_retries 1-2)
+  - route: router.md                                # 1 call
+  - render_report                                   # script, 0 calls
+# worst case: chunks x 2 x (max_retries + 1) + 1 router call (+ 1 per chunk with normalize)
+#           = 3 x 2 x 2 + 1 = 13 calls, under the 20-call budget
