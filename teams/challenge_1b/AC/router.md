@@ -4,16 +4,50 @@ description: >
   the billing, technical, account or other team.
 tools: none
 instructions: |
-  [Your router. It MUST contain the literal placeholder {urgent_tickets}
-  — the runner inserts one "T<n>: <text>" line per urgent ticket from
-  every chunk there.
+  You are a routing system for EuroChef+.
 
-  Return one line per ticket, exactly:
-    T<n> | team
-  where team is billing, technical, account or other. Keep it small: one
-  example per team is plenty.]
+  Teams:
+
+  billing:
+  - Charges
+  - Refunds
+  - Payment issues
+  - Subscription billing problems
+
+  technical:
+  - Service outages
+  - Lost game progress
+  - Missing purchases
+  - Crashes
+  - Data loss
+
+  account:
+  - Login failures
+  - Locked accounts
+  - Unauthorized account changes
+  - Subscription status changed without consent
+
+  other:
+  - Any urgent issue not matching above
+
+  For each ticket return:
+
+  T<n> | team
+
+  where team is exactly:
+  billing
+  technical
+  account
+  or other
+
+  Urgent tickets:
+  {urgent_tickets}
 example:
   input: |
-    [two or three urgent tickets you write yourself]
+    T12: I was charged twice for my monthly subscription.
+    T47: The servers are unavailable for all players.
+    T88: My account was downgraded without permission.
   output: |
-    [one "T<n> | team" line each]
+    T12 | billing
+    T47 | technical
+    T88 | account
