@@ -40,6 +40,7 @@ def main():
         if os.path.isdir(d) and os.path.basename(d) != "_template"
     )
 
+    failed_teams = []
     for team_dir in team_dirs:
         # A pipeline.yaml makes it a multi-skill pipeline (challenge_1b);
         # otherwise the team submits a single skill.md.
@@ -55,9 +56,17 @@ def main():
         cmd = [sys.executable, "score_submission.py", *submission_args, "--cases", cases_dir, "--out", out_dir]
         if args.force:
             cmd.append("--force")
-        subprocess.run(cmd, check=False)
+        # Keep grading the other teams if one fails, but remember it: a team
+        # that couldn't be graded (usually a model outage or a key/credit
+        # problem) must not let the scheduled run finish looking green.
+        if subprocess.run(cmd, check=False).returncode != 0:
+            failed_teams.append(os.path.basename(team_dir))
 
     subprocess.run([sys.executable, "run_competition.py", "--results", out_dir], check=False)
+
+    if failed_teams:
+        print(f"\n::error::{args.challenge}: couldn't grade {', '.join(failed_teams)}; see the errors above.")
+        sys.exit(1)
 
 
 if __name__ == "__main__":

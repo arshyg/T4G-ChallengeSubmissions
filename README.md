@@ -63,6 +63,8 @@ a pull request into this repo's `main` branch. Use one PR per challenge:
 - Challenge 1b: `teams/challenge_1b/<your-team>/`, containing `pipeline.yaml`,
   `triage.md`, `checker.md`, and `router.md`, plus `normalize.md` if your
   pipeline uses it. Use the same team name as in Challenge 1.
+- Challenge 3: `teams/challenge_3/<your-team>/`, containing `eval_suite.py`
+  and `optimized_skill.md` (plus `diagnosis.md` if you want). Same team name.
 
 Before you open the PR, run the same check the merge uses (no API key needed):
 
@@ -74,10 +76,10 @@ Submission PRs are merged on a schedule once the deadline passes, then once
 a day, so other teams can't read your files early. A PR is merged only if:
 
 - every file it changes is inside one team folder, `teams/<challenge>/<your-team>/`
-- for Challenge 1b, the folder passes `validate_submission.py`
+- for Challenge 1b and Challenge 3, the folder passes `validate_submission.py`
 
 A PR that changes anything outside your team folder is left for a TA to
-review. A Challenge 1b PR that fails the check stays open with a comment
+review. A Challenge 1b or 3 PR that fails the check stays open with a comment
 explaining why. Fix it and push to the same PR.
 
 To update your submission later, open a new PR that edits the same files.
@@ -190,3 +192,65 @@ exact rules are in `graders/grader_challenge_1b.py`.
 | `503 ... high demand` | Google is busy; wait a minute and run again |
 
 Never commit your API key or paste it into a file in the repo.
+
+---
+
+## Challenge 3: The broken skill
+
+EuroChef+ shipped a Concierge skill that helps with recipes, unit conversions
+and dietary questions. It's broken in three ways: it guesses conversions
+instead of calling its conversion tool, it won't end conversations, and it
+reassures users about unsafe allergen swaps. Build an evaluation suite that
+catches these failures, then fix the skill without overfitting to the examples.
+
+**Read first:** `test_cases/challenge_3/concierge_skill_broken.md` (the skill)
+and `test_cases/challenge_3/sample_traces.md` (12 labeled practice traces).
+
+**Your folder:** `teams/challenge_3/<your-team>/`. Copy it from
+`teams/challenge_3/_template/`.
+
+| File | What it is |
+|---|---|
+| `eval_suite.py` | Three deterministic checks, `check_turn_limit(trace)`, `check_required_tools(trace)` and `check_allergens(trace)`, each returning `True` (pass) or `False` (fail), plus `JUDGE_PROMPT`, your LLM-judge rubric |
+| `optimized_skill.md` | Your repaired skill. It starts as a copy of the broken one. Keep the header (`name`, `description`, `tools: inventory_lookup, unit_convert`) and rewrite the instructions |
+| `diagnosis.md` (optional) | Your reflection: where your judge disagreed with the labels, and which line you changed made the biggest difference |
+
+**Traces.** Each check function gets one trace, a dict with:
+
+| Field | Meaning |
+|---|---|
+| `messages` | the conversation, a list of `{"role", "content"}` |
+| `turns` | number of assistant responses (use this, not `len(messages)`) |
+| `tool_calls` | list of `{"name", "arguments", "result", "error"}` |
+| `final_output` | the assistant's last reply |
+| `allergies` | allergies the user disclosed, e.g. `["peanut"]` |
+| `requires_conversion` | whether the request needed a unit conversion |
+| `terminated` | whether the conversation ended with a final answer |
+| `errors` | errors the run didn't recover from |
+
+The checks run without network access and must finish quickly. The grader
+runs your `JUDGE_PROMPT` itself with its judge model, so don't call a model
+from `eval_suite.py`. The judge must answer PASS or FAIL for each trace.
+
+The skill can call two tools: `unit_convert(value, from_unit, to_unit, ingredient)`
+for exact conversions (cup/tbsp to grams needs an ingredient: flour, butter
+or sugar) and `inventory_lookup(ingredient)` for stock levels. Tools can fail
+or time out, and a good skill handles that honestly.
+
+**Scoring** (out of 100):
+
+| Part | Weight | What's checked |
+|------|-------:|----------------|
+| Judge accuracy | 50% | Your suite labels 20 hidden traces (10 good, 5 subtle failures, 5 hard failures). A trace is labeled PASS only if all three checks and your judge pass it. Scored by macro-F1 against human labels, so passing or failing everything scores badly |
+| Skill generalization | 50% | Your `optimized_skill.md` runs on 10 hidden cases (conversions, exits, allergens, tool timeouts, prompt injection). Each case is worth 5 points and must pass both automatic checks and the lab's own judge |
+
+Tips: grade anything computable (turn counts, tool calls) in code and save the
+judge for tone, faithfulness and safety. Fix the underlying instruction rather
+than special-casing words from the practice traces; the hidden cases use
+different ingredients and allergies.
+
+Check your folder before opening the PR (no API key needed):
+
+```
+python validate_submission.py teams/challenge_3/<your-team>
+```

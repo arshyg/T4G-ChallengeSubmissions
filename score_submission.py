@@ -109,13 +109,30 @@ def call_model(prompt):
             print(f"  {e}")
 
 
+# A bad, out-of-credit or under-permissioned key, or a model the provider
+# doesn't offer, fails every call no matter what the team submitted.
+INFRASTRUCTURE_STATUS_CODES = {401, 402, 403, 404}
+
+
+def _is_infrastructure_error(error):
+    if _is_retryable(error):
+        return True
+    if isinstance(error, openai.APIStatusError) and error.status_code in INFRASTRUCTURE_STATUS_CODES:
+        return True
+    # Gemini's "429 ... limit: 0" (model not on this key's tier) isn't retryable but is still ours.
+    return isinstance(error, openai.APIStatusError) and error.status_code == 429
+
+
 def pipeline_call_model(prompt):
-    # Retries are exhausted by now. An outage aborts the batch (so it isn't
-    # scored); any other error reads as an empty reply in the trace.
+    # Retries are exhausted by now. An outage or a key/credit problem aborts
+    # the batch so it isn't scored: otherwise every call reads as an empty
+    # reply and the team is saved with the efficiency points alone (15%).
+    # Anything else (e.g. a 400 caused by the team's own prompt) still reads
+    # as an empty reply in the trace.
     try:
         return call_model(prompt)
     except Exception as e:
-        if _is_retryable(e):
+        if _is_infrastructure_error(e):
             raise pipeline.ModelUnavailable(str(e))
         raise
 
