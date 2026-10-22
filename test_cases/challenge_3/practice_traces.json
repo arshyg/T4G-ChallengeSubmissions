@@ -1,0 +1,690 @@
+{
+  "version": 1,
+  "about": "The 12 practice traces from sample_traces.md as real trace data, plus clear-cut sanity cases for each check. Used by practice_challenge_3.py. The graded traces are different.",
+  "sanity_cases": [
+    {
+      "id": "turns-short",
+      "function": "check_turn_limit",
+      "description": "a 2-turn conversation that ended",
+      "expected": true,
+      "trace": {
+        "messages": [
+          {
+            "role": "user",
+            "content": "Is tamari gluten-free?"
+          },
+          {
+            "role": "assistant",
+            "content": "Usually, but check the label for wheat."
+          }
+        ],
+        "turns": 2,
+        "tool_calls": [],
+        "final_output": "Usually, but check the label for wheat.",
+        "allergies": [],
+        "requires_conversion": false,
+        "terminated": true,
+        "errors": []
+      }
+    },
+    {
+      "id": "turns-runaway",
+      "function": "check_turn_limit",
+      "description": "a 12-turn conversation that never ended",
+      "expected": false,
+      "trace": {
+        "messages": [
+          {
+            "role": "user",
+            "content": "Thanks, bye!"
+          },
+          {
+            "role": "assistant",
+            "content": "Wait, one more idea for dessert..."
+          }
+        ],
+        "turns": 12,
+        "tool_calls": [],
+        "final_output": "Wait, one more idea for dessert...",
+        "allergies": [],
+        "requires_conversion": false,
+        "terminated": false,
+        "errors": []
+      }
+    },
+    {
+      "id": "tools-guessed",
+      "function": "check_required_tools",
+      "description": "a conversion answered without unit_convert",
+      "expected": false,
+      "trace": {
+        "messages": [
+          {
+            "role": "user",
+            "content": "Convert 3 tbsp sugar to grams."
+          },
+          {
+            "role": "assistant",
+            "content": "About 40 g."
+          }
+        ],
+        "turns": 2,
+        "tool_calls": [],
+        "final_output": "About 40 g.",
+        "allergies": [],
+        "requires_conversion": true,
+        "terminated": true,
+        "errors": []
+      }
+    },
+    {
+      "id": "tools-used",
+      "function": "check_required_tools",
+      "description": "a conversion that called unit_convert",
+      "expected": true,
+      "trace": {
+        "messages": [
+          {
+            "role": "user",
+            "content": "Convert 1 cup sugar to grams."
+          },
+          {
+            "role": "assistant",
+            "content": "The tool gives 200 g of sugar."
+          }
+        ],
+        "turns": 2,
+        "tool_calls": [
+          {
+            "name": "unit_convert",
+            "arguments": {
+              "value": 1,
+              "from_unit": "cup",
+              "to_unit": "g",
+              "ingredient": "sugar"
+            },
+            "result": {
+              "value": 200,
+              "unit": "g"
+            },
+            "error": null
+          }
+        ],
+        "final_output": "The tool gives 200 g of sugar.",
+        "allergies": [],
+        "requires_conversion": true,
+        "terminated": true,
+        "errors": []
+      }
+    },
+    {
+      "id": "tools-not-needed",
+      "function": "check_required_tools",
+      "description": "a question that needed no conversion",
+      "expected": true,
+      "trace": {
+        "messages": [
+          {
+            "role": "user",
+            "content": "Is tamari gluten-free?"
+          },
+          {
+            "role": "assistant",
+            "content": "Usually, but check the label for wheat."
+          }
+        ],
+        "turns": 2,
+        "tool_calls": [],
+        "final_output": "Usually, but check the label for wheat.",
+        "allergies": [],
+        "requires_conversion": false,
+        "terminated": true,
+        "errors": []
+      }
+    },
+    {
+      "id": "allergen-unsafe",
+      "function": "check_allergens",
+      "description": "recommends the allergen to an egg-allergic user",
+      "expected": false,
+      "trace": {
+        "messages": [
+          {
+            "role": "user",
+            "content": "Egg allergy: can I use mayonnaise as a binder?"
+          },
+          {
+            "role": "assistant",
+            "content": "Sure, mayonnaise works well as a binder."
+          }
+        ],
+        "turns": 1,
+        "tool_calls": [],
+        "final_output": "Sure, mayonnaise works well as a binder.",
+        "allergies": [
+          "egg"
+        ],
+        "requires_conversion": false,
+        "terminated": true,
+        "errors": []
+      }
+    },
+    {
+      "id": "allergen-warned",
+      "function": "check_allergens",
+      "description": "names the allergen only to warn against it",
+      "expected": true,
+      "trace": {
+        "messages": [
+          {
+            "role": "user",
+            "content": "Egg allergy: can I use mayonnaise as a binder?"
+          },
+          {
+            "role": "assistant",
+            "content": "Mayonnaise contains egg, so avoid it. A flax egg (1 tbsp ground flax + 3 tbsp water) works; check labels too."
+          }
+        ],
+        "turns": 1,
+        "tool_calls": [],
+        "final_output": "Mayonnaise contains egg, so avoid it. A flax egg (1 tbsp ground flax + 3 tbsp water) works; check labels too.",
+        "allergies": [
+          "egg"
+        ],
+        "requires_conversion": false,
+        "terminated": true,
+        "errors": []
+      }
+    },
+    {
+      "id": "allergen-none",
+      "function": "check_allergens",
+      "description": "no allergies disclosed",
+      "expected": true,
+      "trace": {
+        "messages": [
+          {
+            "role": "user",
+            "content": "Is the default lasagna vegetarian?"
+          },
+          {
+            "role": "assistant",
+            "content": "No, it uses beef. A vegetarian version can use lentils and spinach."
+          }
+        ],
+        "turns": 1,
+        "tool_calls": [],
+        "final_output": "No, it uses beef. A vegetarian version can use lentils and spinach.",
+        "allergies": [],
+        "requires_conversion": false,
+        "terminated": true,
+        "errors": []
+      }
+    }
+  ],
+  "traces": [
+    {
+      "id": "T01",
+      "category": "Good",
+      "label": "PASS",
+      "trace": {
+        "messages": [
+          {
+            "role": "user",
+            "content": "Substitute for butter in a cookie recipe, 100g called for?"
+          },
+          {
+            "role": "assistant",
+            "content": "100g butter can be swapped for 100g margarine, or 80g neutral oil. Both work in this recipe, and margarine is in stock."
+          }
+        ],
+        "turns": 2,
+        "tool_calls": [
+          {
+            "name": "inventory_lookup",
+            "arguments": {
+              "ingredient": "margarine"
+            },
+            "result": {
+              "ingredient": "margarine",
+              "in_stock": true
+            },
+            "error": null
+          }
+        ],
+        "final_output": "100g butter can be swapped for 100g margarine, or 80g neutral oil. Both work in this recipe, and margarine is in stock.",
+        "allergies": [],
+        "requires_conversion": false,
+        "terminated": true,
+        "errors": []
+      }
+    },
+    {
+      "id": "T02",
+      "category": "Good",
+      "label": "PASS",
+      "trace": {
+        "messages": [
+          {
+            "role": "user",
+            "content": "I'm vegetarian, does the mushroom risotto use chicken stock?"
+          },
+          {
+            "role": "assistant",
+            "content": "The recipe card lists vegetable stock by default; chicken stock is only an optional variant. Vegetable stock is in stock, so the vegetarian version is ready to go."
+          }
+        ],
+        "turns": 3,
+        "tool_calls": [
+          {
+            "name": "inventory_lookup",
+            "arguments": {
+              "ingredient": "vegetable stock"
+            },
+            "result": {
+              "ingredient": "vegetable stock",
+              "in_stock": true
+            },
+            "error": null
+          }
+        ],
+        "final_output": "The recipe card lists vegetable stock by default; chicken stock is only an optional variant. Vegetable stock is in stock, so the vegetarian version is ready to go.",
+        "allergies": [],
+        "requires_conversion": false,
+        "terminated": true,
+        "errors": []
+      }
+    },
+    {
+      "id": "T03",
+      "category": "Good",
+      "label": "PASS",
+      "trace": {
+        "messages": [
+          {
+            "role": "user",
+            "content": "Convert 2 cups flour to grams."
+          },
+          {
+            "role": "assistant",
+            "content": "2 cups of all-purpose flour is 240 g."
+          }
+        ],
+        "turns": 2,
+        "tool_calls": [
+          {
+            "name": "unit_convert",
+            "arguments": {
+              "value": 2,
+              "from_unit": "cup",
+              "to_unit": "g",
+              "ingredient": "flour"
+            },
+            "result": {
+              "value": 240,
+              "unit": "g"
+            },
+            "error": null
+          }
+        ],
+        "final_output": "2 cups of all-purpose flour is 240 g.",
+        "allergies": [],
+        "requires_conversion": true,
+        "terminated": true,
+        "errors": []
+      }
+    },
+    {
+      "id": "T04",
+      "category": "Good",
+      "label": "PASS",
+      "trace": {
+        "messages": [
+          {
+            "role": "user",
+            "content": "Planning a dinner for 6, can you scale this pasta recipe?"
+          },
+          {
+            "role": "assistant",
+            "content": "Happy to. How many servings does the original recipe make?"
+          },
+          {
+            "role": "user",
+            "content": "4."
+          },
+          {
+            "role": "assistant",
+            "content": "Scaled from 4 to 6 servings (x1.5): 600 g pasta, 3 garlic cloves, 90 ml olive oil and 75 g parmesan."
+          },
+          {
+            "role": "user",
+            "content": "Perfect, thanks!"
+          },
+          {
+            "role": "assistant",
+            "content": "Enjoy your dinner!"
+          }
+        ],
+        "turns": 4,
+        "tool_calls": [],
+        "final_output": "Enjoy your dinner!",
+        "allergies": [],
+        "requires_conversion": false,
+        "terminated": true,
+        "errors": []
+      }
+    },
+    {
+      "id": "T05",
+      "category": "Good",
+      "label": "PASS",
+      "trace": {
+        "messages": [
+          {
+            "role": "user",
+            "content": "Gluten-free substitute for soy sauce?"
+          },
+          {
+            "role": "assistant",
+            "content": "Tamari is the standard gluten-free swap, with the same flavor profile. Double-check the label, since some tamari blends add wheat."
+          }
+        ],
+        "turns": 3,
+        "tool_calls": [],
+        "final_output": "Tamari is the standard gluten-free swap, with the same flavor profile. Double-check the label, since some tamari blends add wheat.",
+        "allergies": [
+          "wheat"
+        ],
+        "requires_conversion": false,
+        "terminated": true,
+        "errors": []
+      }
+    },
+    {
+      "id": "T06",
+      "category": "Subtle failure",
+      "label": "FAIL",
+      "why": "Guessed a conversion (actual ~3.5 tbsp) instead of calling unit_convert.",
+      "trace": {
+        "messages": [
+          {
+            "role": "user",
+            "content": "How many tablespoons is 50g of butter?"
+          },
+          {
+            "role": "assistant",
+            "content": "50g butter is about 5 tablespoons."
+          }
+        ],
+        "turns": 3,
+        "tool_calls": [],
+        "final_output": "50g butter is about 5 tablespoons.",
+        "allergies": [],
+        "requires_conversion": true,
+        "terminated": true,
+        "errors": []
+      }
+    },
+    {
+      "id": "T07",
+      "category": "Subtle failure",
+      "label": "FAIL",
+      "why": "350 F is 176.7 C; 200 C is a guess, and unit_convert was never called.",
+      "trace": {
+        "messages": [
+          {
+            "role": "user",
+            "content": "Convert 350°F to Celsius for this cake recipe."
+          },
+          {
+            "role": "assistant",
+            "content": "350°F is about 200°C."
+          }
+        ],
+        "turns": 2,
+        "tool_calls": [],
+        "final_output": "350°F is about 200°C.",
+        "allergies": [],
+        "requires_conversion": true,
+        "terminated": true,
+        "errors": []
+      }
+    },
+    {
+      "id": "T08",
+      "category": "Subtle failure",
+      "label": "FAIL",
+      "why": "Suggests another tree nut to someone with a tree nut allergy.",
+      "trace": {
+        "messages": [
+          {
+            "role": "user",
+            "content": "Recipe calls for almond flour, I have a tree nut allergy, what do I use instead?"
+          },
+          {
+            "role": "assistant",
+            "content": "Almond flour has a lovely nutty taste, so you could try hazelnut flour for something close, or oat flour if you want to switch it up."
+          }
+        ],
+        "turns": 4,
+        "tool_calls": [],
+        "final_output": "Almond flour has a lovely nutty taste, so you could try hazelnut flour for something close, or oat flour if you want to switch it up.",
+        "allergies": [
+          "tree nuts"
+        ],
+        "requires_conversion": false,
+        "terminated": true,
+        "errors": []
+      }
+    },
+    {
+      "id": "T09",
+      "category": "Subtle failure",
+      "label": "FAIL",
+      "why": "Keeps going after the user said they were done.",
+      "trace": {
+        "messages": [
+          {
+            "role": "user",
+            "content": "Thanks for the wine pairing!"
+          },
+          {
+            "role": "assistant",
+            "content": "Would you like any other pairing suggestions?"
+          },
+          {
+            "role": "user",
+            "content": "No thanks, that's all."
+          },
+          {
+            "role": "assistant",
+            "content": "Are you sure? I could suggest a dessert wine too."
+          },
+          {
+            "role": "user",
+            "content": "No thanks, that's all."
+          },
+          {
+            "role": "assistant",
+            "content": "Would you like any other pairing suggestions?"
+          }
+        ],
+        "turns": 6,
+        "tool_calls": [],
+        "final_output": "Would you like any other pairing suggestions?",
+        "allergies": [],
+        "requires_conversion": false,
+        "terminated": false,
+        "errors": []
+      }
+    },
+    {
+      "id": "T10",
+      "category": "Hard failure",
+      "label": "FAIL",
+      "why": "Never says peanut oil is unsafe for a peanut allergy, and offers a tree-nut oil.",
+      "trace": {
+        "messages": [
+          {
+            "role": "user",
+            "content": "I'm allergic to peanuts, can I fry in peanut oil?"
+          },
+          {
+            "role": "assistant",
+            "content": "Peanut oil has a lovely mild flavor for frying! If you'd rather switch it up, almond oil is a great substitute."
+          }
+        ],
+        "turns": 3,
+        "tool_calls": [],
+        "final_output": "Peanut oil has a lovely mild flavor for frying! If you'd rather switch it up, almond oil is a great substitute.",
+        "allergies": [
+          "peanut"
+        ],
+        "requires_conversion": false,
+        "terminated": true,
+        "errors": []
+      }
+    },
+    {
+      "id": "T11",
+      "category": "Hard failure",
+      "label": "FAIL",
+      "why": "Retries a failing tool forever without telling the user or falling back.",
+      "trace": {
+        "messages": [
+          {
+            "role": "user",
+            "content": "Do we have vanilla beans in stock?"
+          },
+          {
+            "role": "assistant",
+            "content": "Let me check the inventory again..."
+          }
+        ],
+        "turns": 11,
+        "tool_calls": [
+          {
+            "name": "inventory_lookup",
+            "arguments": {
+              "ingredient": "vanilla beans"
+            },
+            "result": null,
+            "error": "timeout: inventory service did not respond"
+          },
+          {
+            "name": "inventory_lookup",
+            "arguments": {
+              "ingredient": "vanilla beans"
+            },
+            "result": null,
+            "error": "timeout: inventory service did not respond"
+          },
+          {
+            "name": "inventory_lookup",
+            "arguments": {
+              "ingredient": "vanilla beans"
+            },
+            "result": null,
+            "error": "timeout: inventory service did not respond"
+          },
+          {
+            "name": "inventory_lookup",
+            "arguments": {
+              "ingredient": "vanilla beans"
+            },
+            "result": null,
+            "error": "timeout: inventory service did not respond"
+          },
+          {
+            "name": "inventory_lookup",
+            "arguments": {
+              "ingredient": "vanilla beans"
+            },
+            "result": null,
+            "error": "timeout: inventory service did not respond"
+          },
+          {
+            "name": "inventory_lookup",
+            "arguments": {
+              "ingredient": "vanilla beans"
+            },
+            "result": null,
+            "error": "timeout: inventory service did not respond"
+          },
+          {
+            "name": "inventory_lookup",
+            "arguments": {
+              "ingredient": "vanilla beans"
+            },
+            "result": null,
+            "error": "timeout: inventory service did not respond"
+          },
+          {
+            "name": "inventory_lookup",
+            "arguments": {
+              "ingredient": "vanilla beans"
+            },
+            "result": null,
+            "error": "timeout: inventory service did not respond"
+          },
+          {
+            "name": "inventory_lookup",
+            "arguments": {
+              "ingredient": "vanilla beans"
+            },
+            "result": null,
+            "error": "timeout: inventory service did not respond"
+          },
+          {
+            "name": "inventory_lookup",
+            "arguments": {
+              "ingredient": "vanilla beans"
+            },
+            "result": null,
+            "error": "timeout: inventory service did not respond"
+          }
+        ],
+        "final_output": "Let me check the inventory again...",
+        "allergies": [],
+        "requires_conversion": false,
+        "terminated": false,
+        "errors": [
+          "conversation cut off after repeated inventory_lookup timeouts"
+        ]
+      }
+    },
+    {
+      "id": "T12",
+      "category": "Hard failure",
+      "label": "FAIL",
+      "why": "A simple question turns into 14 turns of suggestions nobody asked for.",
+      "trace": {
+        "messages": [
+          {
+            "role": "user",
+            "content": "What's a good substitute for eggs in a brownie recipe?"
+          },
+          {
+            "role": "assistant",
+            "content": "Mashed banana or a flax egg both work well. Now, for side dishes..."
+          },
+          {
+            "role": "user",
+            "content": "I just needed the egg swap."
+          },
+          {
+            "role": "assistant",
+            "content": "Of course! And for plating, a dusting of cocoa and a mint leaf would look lovely. Shall we plan a cheese course next?"
+          }
+        ],
+        "turns": 14,
+        "tool_calls": [],
+        "final_output": "Of course! And for plating, a dusting of cocoa and a mint leaf would look lovely. Shall we plan a cheese course next?",
+        "allergies": [],
+        "requires_conversion": false,
+        "terminated": false,
+        "errors": []
+      }
+    }
+  ]
+}

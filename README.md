@@ -249,6 +249,20 @@ judge for tone, faithfulness and safety. Fix the underlying instruction rather
 than special-casing words from the practice traces; the hidden cases use
 different ingredients and allergies.
 
+**Practice locally.** Run your suite on the 12 practice traces (the ones in
+`sample_traces.md`, as real trace data in `test_cases/challenge_3/practice_traces.json`):
+
+```
+python practice_challenge_3.py teams/challenge_3/<your-team>
+```
+
+Your three checks run with no API key, along with a few clear-cut sanity cases for
+each check. With `GEMINI_API_KEY` set, your `JUDGE_PROMPT` also runs on each trace
+(12 calls on the free `gemini-3.5-flash`), combined the way the grader does it, and
+you get a practice judge-accuracy score. Add `--no-judge` to skip the judge and use
+no tokens. `npm run benchmark -- --skill teams/challenge_3/<your-team> --challenge challenge_3`
+runs the same thing. The skill half is only scored on the hidden cases.
+
 Check your folder before opening the PR (no API key needed):
 
 ```

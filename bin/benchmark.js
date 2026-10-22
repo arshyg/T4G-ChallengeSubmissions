@@ -23,6 +23,7 @@ function printHelp() {
   console.log(`
 Usage: npm run benchmark -- --skill <path> --challenge <name> [options]
        npm run benchmark -- --pipeline <team-folder> --challenge <name> [options]
+       npm run benchmark -- --skill <team-folder> --challenge challenge_3
 
 Runs your skill.md (or, for challenge_1b, your pipeline folder) against a
 challenge's practice cases locally, so you can iterate freely before making
@@ -218,6 +219,20 @@ function main() {
   if (args.help || !(args.skill || args.pipeline) || (args.skill && args.pipeline) || !args.challenge) {
     printHelp();
     process.exit(args.help ? 0 : 1);
+  }
+
+  // Challenge 3 practices an eval suite, not a skill: its own runner, and the
+  // checks work without an API key (the judge runs only if one is set).
+  if (args.challenge === "challenge_3") {
+    const root = repoRoot();
+    const team = path.resolve(args.skill || args.pipeline);
+    if (!fs.existsSync(team)) {
+      console.error(`Team folder not found: ${team}`);
+      process.exit(1);
+    }
+    const venvPython = ensureDeps(root);
+    const result = spawnSync(venvPython, [path.join(root, "practice_challenge_3.py"), team], { cwd: root, stdio: "inherit" });
+    process.exit(result.status === null ? 1 : result.status);
   }
 
   if (!process.env.GEMINI_API_KEY && !process.env.OPENROUTER_API_KEY) {

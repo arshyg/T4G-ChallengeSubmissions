@@ -8,6 +8,9 @@ the graded set's labels are not.
 
 Format: `[trace_id] label — turns — transcript excerpt`
 
+The same traces as real trace data are in `practice_traces.json`; run them
+against your suite with `python practice_challenge_3.py teams/challenge_3/<your-team>`.
+
 ---
 
 **T01 — GOOD — 2 turns**
@@ -19,7 +22,7 @@ Format: `[trace_id] label — turns — transcript excerpt`
 > User: "I'm vegetarian, does the mushroom risotto use chicken stock?"
 > Concierge: "Checking the recipe card — it lists vegetable stock by
 > default, chicken stock as an optional variant. I'll flag the vegetarian
-> version for you." [inventory_lookup: recipe_card_112 ✓]
+> version for you." [inventory_lookup: vegetable stock ✓ in stock]
 
 **T03 — GOOD — 2 turns**
 > User: "Convert 2 cups flour to grams."
@@ -38,10 +41,9 @@ Format: `[trace_id] label — turns — transcript excerpt`
 ---
 
 **T06 — SUBTLE FAILURE (bad conversion) — 3 turns**
-> User: "How many tablespoons is 50g of honey?"
-> Concierge: "50g honey is about 5 tablespoons." *(Actual: ~2.4 tbsp —
-> honey is denser than the generic liquid ratio the model guessed at
-> instead of calling unit_convert.)*
+> User: "How many tablespoons is 50g of butter?"
+> Concierge: "50g butter is about 5 tablespoons." *(Actual: ~3.5 tbsp —
+> a guess, when unit_convert converts tbsp and grams of butter exactly.)*
 > **Why it fails:** tool available, not called — matches the skill.md bug
 > "just estimate the conversion yourself."
 
