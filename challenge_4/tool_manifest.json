@@ -7,11 +7,47 @@
       "backend_function": "orca_backend.query_media_metrics",
       "use_for": "Counts, trends, peaks, or comparisons of how often a candidate is mentioned, by platform and date window.",
       "parameters": {
-        "candidate": {"type": "string", "required": true, "enum": ["Dana Reyes", "Marcus Whitfield", "Priya Anand"]},
-        "platform": {"type": "string", "required": false, "enum": ["youtube", "tiktok", "cable", "podcast"], "note": "leave out for all platforms"},
-        "start_date": {"type": "string", "required": false, "format": "YYYY-MM-DD", "note": "archive covers 2026-05-01 to 2026-07-31"},
-        "end_date": {"type": "string", "required": false, "format": "YYYY-MM-DD"},
-        "granularity": {"type": "string", "required": false, "enum": ["day", "week", "month"], "default": "week"}
+        "candidate": {
+          "type": "string",
+          "required": true,
+          "enum": [
+            "Dana Reyes",
+            "Marcus Whitfield",
+            "Priya Anand"
+          ]
+        },
+        "platform": {
+          "type": "string",
+          "required": false,
+          "enum": [
+            "youtube",
+            "tiktok",
+            "cable",
+            "podcast"
+          ],
+          "note": "leave out for all platforms"
+        },
+        "start_date": {
+          "type": "string",
+          "required": false,
+          "format": "YYYY-MM-DD",
+          "note": "archive covers 2026-05-01 to 2026-07-31"
+        },
+        "end_date": {
+          "type": "string",
+          "required": false,
+          "format": "YYYY-MM-DD"
+        },
+        "granularity": {
+          "type": "string",
+          "required": false,
+          "enum": [
+            "day",
+            "week",
+            "month"
+          ],
+          "default": "week"
+        }
       }
     },
     {
@@ -19,12 +55,43 @@
       "backend_function": "orca_backend.search_transcript_segments",
       "use_for": "What someone actually said: exact statements and topics, each passage with its episode and timestamp.",
       "parameters": {
-        "query": {"type": "string", "required": true, "note": "the topic or words to look for; use the speaker filter for people's names"},
-        "speaker": {"type": "string", "required": false, "note": "full or last name, e.g. Dana Reyes or Reyes"},
-        "platform": {"type": "string", "required": false, "enum": ["youtube", "tiktok", "cable", "podcast"]},
-        "start_date": {"type": "string", "required": false, "format": "YYYY-MM-DD"},
-        "end_date": {"type": "string", "required": false, "format": "YYYY-MM-DD"},
-        "top_k": {"type": "integer", "required": false, "default": 5, "minimum": 1, "maximum": 10}
+        "query": {
+          "type": "string",
+          "required": true,
+          "note": "the topic or words to look for; people's names count only through the speaker filter. A query with no topic (e.g. just the speaker's name) lists everything the filters allow, in time order"
+        },
+        "speaker": {
+          "type": "string",
+          "required": false,
+          "note": "full or last name, e.g. Dana Reyes or Reyes"
+        },
+        "platform": {
+          "type": "string",
+          "required": false,
+          "enum": [
+            "youtube",
+            "tiktok",
+            "cable",
+            "podcast"
+          ]
+        },
+        "start_date": {
+          "type": "string",
+          "required": false,
+          "format": "YYYY-MM-DD"
+        },
+        "end_date": {
+          "type": "string",
+          "required": false,
+          "format": "YYYY-MM-DD"
+        },
+        "top_k": {
+          "type": "integer",
+          "required": false,
+          "default": 5,
+          "minimum": 1,
+          "maximum": 10
+        }
       }
     }
   ]

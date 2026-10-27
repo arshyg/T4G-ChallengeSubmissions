@@ -329,7 +329,11 @@ Add `--simulate-timeout search_transcript_segments` (or `query_media_metrics`) t
 your skill handles a tool failure. `npm run benchmark -- --skill teams/challenge_4/<your-team> --challenge challenge_4`
 runs the server check and then the practice questions. Practice uses the free
 `gemini-3.5-flash`; the official run uses Gemini 3.1 Pro. Needs Python 3.10 or newer;
-run `pip install -r requirements.txt` once (it adds the `mcp` package).
+run `pip install -r requirements.txt` once (it adds the `mcp` package). The archive only
+covers May 1 to July 31, 2026, so a question that says "July" means July 2026; saying so in
+your tool descriptions or skill saves wasted calls. Free keys allow only a few requests a
+minute: `run_agent.py` waits and retries when it hits the limit, and running one question at
+a time (instead of `--practice`) uses fewer requests.
 
 **Scoring** (out of 100, partial credit per case, on hidden questions):
 

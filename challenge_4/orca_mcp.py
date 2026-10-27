@@ -34,12 +34,16 @@ async def open_server(server, simulate_timeout=None):
     params = StdioServerParameters(command=sys.executable, args=[str(server)], env=env, cwd=str(Path(server).parent))
     # The server's own log lines go to a temp file and are only shown if it crashes.
     with tempfile.TemporaryFile("w+", encoding="utf-8") as server_log:
+        started = False
         try:
             async with stdio_client(params, errlog=server_log) as (read, write):
                 async with ClientSession(read, write) as session:
                     await session.initialize()
+                    started = True
                     yield session
         except BaseException:
+            if started:
+                raise
             server_log.seek(0)
             lines = [line for line in server_log.read().splitlines() if line.strip()]
             if lines:
