@@ -4,10 +4,11 @@ needing an API key.
     python validate_submission.py teams/challenge_1b/<your-team>
     python validate_submission.py teams/challenge_1/<your-team>
     python validate_submission.py teams/challenge_3/<your-team>
+    python validate_submission.py teams/challenge_4/<your-team>
 
 A folder with pipeline.yaml is checked as a pipeline (files present, steps
 in order, placeholders, worst case within the call budget); otherwise its
-skill.md is checked. A challenge_3 folder is checked without running any
+skill.md is checked. A challenge_3 or challenge_4 folder is checked without running any
 of its code. Prints OK or the reason, and exits 1 on failure.
 """
 
@@ -25,6 +26,9 @@ CH3_REQUIRED = {"eval_suite.py", "optimized_skill.md"}
 CH3_OPTIONAL = {"diagnosis.md"}
 CH3_CHECKS = ("check_turn_limit", "check_required_tools", "check_allergens")
 CH3_TOOLS = {"inventory_lookup", "unit_convert"}
+CH4_REQUIRED = {"mcp_server.py", "skill.md"}
+CH4_OPTIONAL = {"reflection.md"}
+CH4_TOOLS = {"query_media_metrics", "search_transcript_segments"}
 
 
 def _is_stub(func):
@@ -100,12 +104,84 @@ def validate_challenge_3(team_dir):
     return True, "challenge 3 submission is valid"
 
 
+def _registered_tools(tree):
+    # Tool names registered with @mcp.tool(...) / @mcp.tool or mcp.add_tool(..., name=...).
+    names = {}
+    for node in ast.walk(tree):
+        if isinstance(node, ast.FunctionDef):
+            for dec in node.decorator_list:
+                target = dec.func if isinstance(dec, ast.Call) else dec
+                if isinstance(target, ast.Attribute) and target.attr == 'tool':
+                    name = node.name
+                    if isinstance(dec, ast.Call):
+                        for kw in dec.keywords:
+                            if kw.arg == 'name' and isinstance(kw.value, ast.Constant):
+                                name = kw.value.value
+                    names[name] = node
+        elif isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute) and node.func.attr == 'add_tool':
+            for kw in node.keywords:
+                if kw.arg == 'name' and isinstance(kw.value, ast.Constant):
+                    names[kw.value.value] = node
+    return names
+
+
+def validate_challenge_4(team_dir):
+    """Reads mcp_server.py and skill.md without executing them."""
+    names = {n for n in os.listdir(team_dir) if not n.startswith('.')}
+    missing = CH4_REQUIRED - names
+    if missing:
+        return False, 'missing ' + ', '.join(sorted(missing))
+    extra = names - CH4_REQUIRED - CH4_OPTIONAL
+    if extra:
+        return False, ('unexpected files: ' + ', '.join(sorted(extra)) +
+                       ' (only mcp_server.py, skill.md and optionally reflection.md)')
+
+    with open(os.path.join(team_dir, 'mcp_server.py'), encoding='utf-8') as f:
+        source = f.read()
+    try:
+        tree = ast.parse(source)
+    except SyntaxError as e:
+        return False, f'mcp_server.py has a syntax error on line {e.lineno}: {e.msg}'
+    if 'FastMCP' not in source:
+        return False, 'mcp_server.py must create its server with FastMCP'
+    tools = _registered_tools(tree)
+    for name in sorted(CH4_TOOLS):
+        if name not in tools:
+            return False, f'mcp_server.py must register a tool named {name}'
+        if isinstance(tools[name], ast.FunctionDef) and _is_stub(tools[name]):
+            return False, f'{name} still raises NotImplementedError'
+
+    with open(os.path.join(team_dir, 'skill.md'), encoding='utf-8') as f:
+        text = f.read()
+    if not text.startswith('---\n') or len(text.split('---', 2)) != 3:
+        return False, 'skill.md needs a YAML header between --- lines (name, description, tools)'
+    _, header, body = text.split('---', 2)
+    try:
+        meta = yaml.safe_load(header)
+    except yaml.YAMLError as e:
+        return False, f"skill.md header isn't valid YAML: {e}"
+    if not isinstance(meta, dict) or any(not meta.get(k) for k in ('name', 'description', 'tools')):
+        return False, 'skill.md header needs name, description and tools'
+    listed = meta['tools']
+    if isinstance(listed, str):
+        listed = [s.strip() for s in listed.split(',')]
+    if not isinstance(listed, list) or set(listed) != CH4_TOOLS:
+        return False, 'skill.md tools must be exactly query_media_metrics and search_transcript_segments'
+    if not body.strip():
+        return False, 'skill.md has no instructions'
+    if 'TODO' in body:
+        return False, 'skill.md still has the template TODO; replace it with your instructions'
+    return True, 'challenge 4 submission is valid'
+
+
 def validate(team_dir):
     """Returns (ok, message)."""
     if not os.path.isdir(team_dir):
         return False, f"{team_dir} is not a folder"
     if os.path.basename(os.path.dirname(os.path.normpath(team_dir))) == "challenge_3":
         return validate_challenge_3(team_dir)
+    if os.path.basename(os.path.dirname(os.path.normpath(team_dir))) == "challenge_4":
+        return validate_challenge_4(team_dir)
     if os.path.isfile(os.path.join(team_dir, "pipeline.yaml")):
         try:
             config = load_pipeline(team_dir)
