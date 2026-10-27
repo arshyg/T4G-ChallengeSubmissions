@@ -5,7 +5,9 @@ The transcripts in corpus/transcripts.jsonl are already split into short passage
 against a query with BM25, a classic keyword-relevance score, after applying any
 platform / speaker / date filters. People's names in the query don't count toward
 relevance (use the speaker filter for that), and passages scoring below MIN_SCORE are
-dropped, so a topic the archive never covers returns no results. Weakly related
+dropped, so a topic the archive never covers returns no results. A query with no topic
+words at all (just a name, or "what did she say") lists the filtered passages in time
+order instead, so speaker + date filters alone still work. Weakly related
 passages can still come back: deciding whether they actually answer the question is
 the agent's job.
 """
@@ -20,6 +22,12 @@ MIN_SCORE = 1.0
 _STOP = set("""a an and are as at be been but by did do does for from had has have he her his i if in
 into is it its me my no not of on or our she so that the their them then there they this to was we
 were what when where which who why will with would you your about said say says""".split())
+# Words that describe the question rather than a topic; they don't count toward relevance.
+_GENERIC = set("""say said saying statement statements comment comments remark remarks quote quotes
+quoted mention mentions mentioned talk talked talking discuss discussed speak spoke spoken word words
+think thought view views position positions stance opinion opinions claim claims around then
+cable news tv youtube tiktok podcast podcasts video videos show shows episode episodes interview
+interviews appearance appearances clip clips""".split())
 
 
 def _tokens(text):
@@ -60,7 +68,13 @@ class Index:
         return score
 
     def search(self, query, keep=lambda segment: True, top_k=5, min_score=MIN_SCORE):
-        terms = [t for t in _tokens(query) if t not in self.names]
+        generic = {g for word in _GENERIC for g in _tokens(word)}
+        terms = [t for t in _tokens(query) if t not in self.names and t not in generic]
+        if not terms:
+            # No topic to rank by: list what the filters allow, oldest first.
+            kept = [s for s in self.segments if keep(s)]
+            kept.sort(key=lambda s: (s["date"], s["timestamp"]))
+            return [dict(s, score=0.0) for s in kept[:top_k]]
         scored = []
         for i, seg in enumerate(self.segments):
             if keep(seg):
