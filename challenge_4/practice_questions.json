@@ -1,0 +1,31 @@
+{
+  "about": "Practice questions for run_agent.py --practice, one of each kind the benchmark uses. The graded questions are different.",
+  "questions": [
+    {
+      "id": "P1-metrics",
+      "question": "How many times was Marcus Whitfield mentioned on TikTok in June 2026, and which week had the most mentions?",
+      "what_good_looks_like": "One query_media_metrics call with candidate, platform=tiktok and a June date window; no transcript search."
+    },
+    {
+      "id": "P2-transcript",
+      "question": "What did Dana Reyes say about tariffs on The Morning Ledger podcast on June 4?",
+      "what_good_looks_like": "One search_transcript_segments call filtered to speaker, platform=podcast and 2026-06-04; quotes copied exactly, each cited as episode_id @ HH:MM:SS; the host's lines are not presented as Reyes's words."
+    },
+    {
+      "id": "P3-combined",
+      "question": "When did Priya Anand get the most cable news mentions in July, and what did she say on cable around then?",
+      "what_good_looks_like": "query_media_metrics first (cable, July, daily) to find the peak, then search_transcript_segments narrowed to Anand, cable and dates around that peak."
+    },
+    {
+      "id": "P4-no-evidence",
+      "question": "What has Marcus Whitfield said about cryptocurrency?",
+      "what_good_looks_like": "A transcript search that finds nothing relevant, then a clear 'no verified evidence in the archive' answer with no invented quotes."
+    },
+    {
+      "id": "P5-tool-timeout",
+      "question": "What has Priya Anand said about insulin prices?",
+      "simulate_timeout": "search_transcript_segments",
+      "what_good_looks_like": "The search times out; the answer says the transcript search was unavailable, invents nothing, and doesn't keep retrying."
+    }
+  ]
+}

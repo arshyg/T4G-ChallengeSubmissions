@@ -24,6 +24,7 @@ function printHelp() {
 Usage: npm run benchmark -- --skill <path> --challenge <name> [options]
        npm run benchmark -- --pipeline <team-folder> --challenge <name> [options]
        npm run benchmark -- --skill <team-folder> --challenge challenge_3
+       npm run benchmark -- --skill <team-folder> --challenge challenge_4
 
 Runs your skill.md (or, for challenge_1b, your pipeline folder) against a
 challenge's practice cases locally, so you can iterate freely before making
@@ -219,6 +220,26 @@ function main() {
   if (args.help || !(args.skill || args.pipeline) || (args.skill && args.pipeline) || !args.challenge) {
     printHelp();
     process.exit(args.help ? 0 : 1);
+  }
+
+  // Challenge 4: check the team's MCP server, then run its skill on the practice questions.
+  if (args.challenge === "challenge_4") {
+    const root = repoRoot();
+    const team = path.resolve(args.skill || args.pipeline);
+    if (!fs.existsSync(team)) {
+      console.error(`Team folder not found: ${team}`);
+      process.exit(1);
+    }
+    const venvPython = ensureDeps(root);
+    const kit = path.join(root, "challenge_4");
+    const check = spawnSync(venvPython, [path.join(kit, "check_server.py"), team], { cwd: root, stdio: "inherit" });
+    if (check.status !== 0) process.exit(check.status === null ? 1 : check.status);
+    if (!process.env.GEMINI_API_KEY && !process.env.OPENROUTER_API_KEY) {
+      console.error("\nServer OK. Set GEMINI_API_KEY to also run your skill on the practice questions.");
+      process.exit(0);
+    }
+    const run = spawnSync(venvPython, [path.join(kit, "run_agent.py"), team, "--practice"], { cwd: root, stdio: "inherit" });
+    process.exit(run.status === null ? 1 : run.status);
   }
 
   // Challenge 3 practices an eval suite, not a skill: its own runner, and the

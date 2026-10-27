@@ -5,9 +5,10 @@ name: Auto-merge submissions
 #   - First merge: the Thursday 11:59 PM deadline (set FIRST_MERGE_UTC below).
 #   - After that: once a day at the same time.
 # Challenge 3 has its own first-merge date (CHALLENGE_3_FIRST_MERGE_UTC).
+# Challenge 4 has its own first-merge date (CHALLENGE_4_FIRST_MERGE_UTC).
 # A PR is only merged if every file it changes is inside ONE team folder
 # (teams/<challenge>/<team>/). Anything else gets the "needs-review" label
-# and is left for a human. A challenge_1b or challenge_3 folder must also pass
+# and is left for a human. A challenge_1b, challenge_3 or challenge_4 folder must also pass
 # validate_submission.py; if it doesn't, the PR stays open with a comment
 # giving the reason, so the team can push a fix to the same PR.
 
@@ -30,6 +31,7 @@ env:
   # Challenge 3 is due Saturday Oct 24, 11:59 PM Pacific = Oct 25 in UTC.
   # Its PRs are never merged before this date, even from the Run workflow button.
   CHALLENGE_3_FIRST_MERGE_UTC: '2026-10-25'
+  CHALLENGE_4_FIRST_MERGE_UTC: '2026-11-06'
   REVIEW_LABEL: needs-review
 
 concurrency:
@@ -88,7 +90,7 @@ jobs:
               skipped=$((skipped + 1)); continue
             fi
 
-            if [[ "$folder" == teams/challenge_1b/* || "$folder" == teams/challenge_3/* ]]; then
+            if [[ "$folder" == teams/challenge_1b/* || "$folder" == teams/challenge_3/* || "$folder" == teams/challenge_4/* ]]; then
               sha=$(gh pr view "$pr" --json headRefOid --jq .headRefOid)
               git fetch -q origin "pull/$pr/head:pr-$pr"
               tmp=$(mktemp -d)
@@ -109,6 +111,11 @@ jobs:
 
             if [[ "$folder" == teams/challenge_3/* && "$today" < "$CHALLENGE_3_FIRST_MERGE_UTC" ]]; then
               echo "PR #$pr: valid, waiting for the Challenge 3 deadline ($CHALLENGE_3_FIRST_MERGE_UTC UTC)"
+              skipped=$((skipped + 1)); continue
+            fi
+
+            if [[ "$folder" == teams/challenge_4/* && "$today" < "$CHALLENGE_4_FIRST_MERGE_UTC" ]]; then
+              echo "PR #$pr: valid, waiting for the Challenge 4 deadline ($CHALLENGE_4_FIRST_MERGE_UTC UTC)"
               skipped=$((skipped + 1)); continue
             fi
 

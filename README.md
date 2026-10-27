@@ -12,6 +12,7 @@ teams/<challenge>/<your-team>/          # your submission (skill.md, or a pipeli
 test_cases/<challenge>/practice*.yaml   # practice cases you can test against
 graders/                                # the exact scoring logic used for real grading
 pipeline/                               # challenge_1b pipeline runner and its provided scripts
+challenge_4/                            # Challenge 4 starter kit: Orca backend, archive, MCP tools
 validate_submission.py                  # checks your team folder the way the grader will
 score_submission.py, run_all.py, ...    # the grading harness
 bin/benchmark.js                        # local practice runner (npm run benchmark)
@@ -65,6 +66,8 @@ a pull request into this repo's `main` branch. Use one PR per challenge:
   pipeline uses it. Use the same team name as in Challenge 1.
 - Challenge 3: `teams/challenge_3/<your-team>/`, containing `eval_suite.py`
   and `optimized_skill.md` (plus `diagnosis.md` if you want). Same team name.
+- Challenge 4: `teams/challenge_4/<your-team>/`, containing `mcp_server.py`
+  and `skill.md` (plus `reflection.md` if you want). Same team name.
 
 Before you open the PR, run the same check the merge uses (no API key needed):
 
@@ -76,10 +79,10 @@ Submission PRs are merged on a schedule once the deadline passes, then once
 a day, so other teams can't read your files early. A PR is merged only if:
 
 - every file it changes is inside one team folder, `teams/<challenge>/<your-team>/`
-- for Challenge 1b and Challenge 3, the folder passes `validate_submission.py`
+- for Challenge 1b, 3 and 4, the folder passes `validate_submission.py`
 
 A PR that changes anything outside your team folder is left for a TA to
-review. A Challenge 1b or 3 PR that fails the check stays open with a comment
+review. A Challenge 1b, 3 or 4 PR that fails the check stays open with a comment
 explaining why. Fix it and push to the same PR.
 
 To update your submission later, open a new PR that edits the same files.
@@ -267,4 +270,83 @@ Check your folder before opening the PR (no API key needed):
 
 ```
 python validate_submission.py teams/challenge_3/<your-team>
+```
+
+---
+
+## Challenge 4: Orca Lite
+
+You're a newsroom engineer prototyping Orca, a research tool that lets journalists ask
+about candidate mentions across YouTube, TikTok, cable news and podcasts. Expose two
+existing Python capabilities as MCP tools, then write a skill that decides when and how
+to call them and answers only from what the archive returns. The candidates, shows and
+quotes in the archive are fictional.
+
+**Already built for you** (in `challenge_4/`, don't rewrite these):
+
+| File | What it is |
+|---|---|
+| `orca_backend.py` | the two working functions: mention metrics and transcript search |
+| `rag_pipeline.py`, `corpus/` | the retrieval pipeline and the indexed archive (May 1 to July 31, 2026) |
+| `mcp_server_starter.py` | a short FastMCP starter (also your template's `mcp_server.py`) |
+| `tool_manifest.json` | the exact tool names, parameters, types and enums your server must expose |
+| `check_server.py` | starts your server and checks it against the manifest (no API key needed) |
+| `run_agent.py` | runs your `skill.md` with your server and prints every tool call, the evidence, the answer and a grounding check |
+| `practice_questions.json` | five practice questions, one of each kind the benchmark uses |
+| `rag_walkthrough.ipynb` | optional retrieval refresher; not graded |
+
+**Your folder:** `teams/challenge_4/<your-team>/`. Copy it from `teams/challenge_4/_template/`.
+
+| File | What it is |
+|---|---|
+| `mcp_server.py` | Part A: register `query_media_metrics` and `search_transcript_segments` as MCP tools, thin wrappers around `orca_backend`, matching `tool_manifest.json`, each with a short description |
+| `skill.md` | Part B: your agent skill (`name`, `description`, `tools: query_media_metrics, search_transcript_segments`, then instructions and one worked example that shows the tool call) |
+| `reflection.md` (optional) | where your tool definition, tool choice or the evidence caused a bad answer, and what change fixed it |
+
+**Tool choice.** Counts, trends or a date/platform comparison: `query_media_metrics`.
+Exact statements, topics or "what did they say?": `search_transcript_segments`. A trend
+plus the language behind it: metrics first only when the result narrows the
+platform/date window, then a transcript search inside that window. Use the smallest set
+of tools that answers the question, and pass the filters the question gives you.
+
+**Answers.** Markdown: a short direct answer, then a Sources list with only the citations
+you used. Anything in quotation marks must match a returned passage character-for-character
+and be cited as `episode_id @ HH:MM:SS` (for example `pod-ledger-0604 @ 00:04:22`). If the
+archive has nothing relevant, say no verified evidence was found; don't answer from
+memory. If a tool errors or times out, say so instead of inventing the result or retrying
+forever.
+
+**Practice locally.** Check your server (no API key needed), then run your skill on the
+practice questions with your free Gemini key:
+
+```
+python challenge_4/check_server.py teams/challenge_4/<your-team>
+GEMINI_API_KEY=... python challenge_4/run_agent.py teams/challenge_4/<your-team> --practice
+GEMINI_API_KEY=... python challenge_4/run_agent.py teams/challenge_4/<your-team> "your own question"
+```
+
+Add `--simulate-timeout search_transcript_segments` (or `query_media_metrics`) to see how
+your skill handles a tool failure. `npm run benchmark -- --skill teams/challenge_4/<your-team> --challenge challenge_4`
+runs the server check and then the practice questions. Practice uses the free
+`gemini-3.5-flash`; the official run uses Gemini 3.1 Pro. Needs Python 3.10 or newer;
+run `pip install -r requirements.txt` once (it adds the `mcp` package).
+
+**Scoring** (out of 100, partial credit per case, on hidden questions):
+
+| Part | Weight | What's checked |
+|------|-------:|----------------|
+| MCP tool exposure & schema | 20% | your server starts and exposes both tools with the manifest's names, parameters and types, with descriptions |
+| Tool selection & parameters | 35% | the right tool(s), useful filters, a sensible order; a second tool only when it adds evidence or narrows the search |
+| Grounding & citation accuracy | 25% | quotes are verbatim from returned passages, citations point to evidence you used, and distractor passages are rejected |
+| Task resolution | 20% | the answer resolves the question without unsupported claims, and handles missing evidence or a tool failure |
+
+The hidden questions are a mix: single-tool (easy), grounded and two-tool with
+distractor passages (medium), and missing evidence or one simulated tool timeout (hard).
+Don't build embeddings, a vector database, chunking, ranking or a new RAG pipeline: two
+thin wrappers and a good skill are the whole job.
+
+Check your folder before opening the PR (no API key needed):
+
+```
+python validate_submission.py teams/challenge_4/<your-team>
 ```
