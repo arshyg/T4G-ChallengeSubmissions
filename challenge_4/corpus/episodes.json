@@ -1,0 +1,128 @@
+[
+  {
+    "episode_id": "yt-msf-0520",
+    "platform": "youtube",
+    "show": "Main Street Forum",
+    "date": "2026-05-20",
+    "title": "Town hall: Dana Reyes"
+  },
+  {
+    "episode_id": "pod-ledger-0521",
+    "platform": "podcast",
+    "show": "The Morning Ledger",
+    "date": "2026-05-21",
+    "title": "Reyes on the cost of living"
+  },
+  {
+    "episode_id": "cable-evening-0527",
+    "platform": "cable",
+    "show": "The Evening Desk",
+    "date": "2026-05-27",
+    "title": "Whitfield's jobs pitch"
+  },
+  {
+    "episode_id": "pod-ledger-0604",
+    "platform": "podcast",
+    "show": "The Morning Ledger",
+    "date": "2026-06-04",
+    "title": "Dana Reyes on trade and tariffs"
+  },
+  {
+    "episode_id": "cable-capbrief-0604",
+    "platform": "cable",
+    "show": "Capitol Brief",
+    "date": "2026-06-04",
+    "title": "The tariff fight heats up"
+  },
+  {
+    "episode_id": "yt-pulse-0608",
+    "platform": "youtube",
+    "show": "PolicyPulse",
+    "date": "2026-06-08",
+    "title": "Explained: the tariff debate"
+  },
+  {
+    "episode_id": "pod-statehouse-0611",
+    "platform": "podcast",
+    "show": "Statehouse Hour",
+    "date": "2026-06-11",
+    "title": "Marcus Whitfield sits down"
+  },
+  {
+    "episode_id": "tt-votecheck-0612",
+    "platform": "tiktok",
+    "show": "@votecheck",
+    "date": "2026-06-12",
+    "title": "Fact check: the tariff numbers"
+  },
+  {
+    "episode_id": "tt-pim-0615",
+    "platform": "tiktok",
+    "show": "@policyinminutes",
+    "date": "2026-06-15",
+    "title": "Whitfield: robots don't pay rent"
+  },
+  {
+    "episode_id": "tt-pim-0616",
+    "platform": "tiktok",
+    "show": "@policyinminutes",
+    "date": "2026-06-16",
+    "title": "Reacting to the robots clip"
+  },
+  {
+    "episode_id": "cable-capbrief-0618",
+    "platform": "cable",
+    "show": "Capitol Brief",
+    "date": "2026-06-18",
+    "title": "AI, jobs and the campaign"
+  },
+  {
+    "episode_id": "yt-msf-0625",
+    "platform": "youtube",
+    "show": "Main Street Forum",
+    "date": "2026-06-25",
+    "title": "Town hall: Priya Anand"
+  },
+  {
+    "episode_id": "pod-ledger-0702",
+    "platform": "podcast",
+    "show": "The Morning Ledger",
+    "date": "2026-07-02",
+    "title": "Anand's housing plan"
+  },
+  {
+    "episode_id": "tt-votecheck-0705",
+    "platform": "tiktok",
+    "show": "@votecheck",
+    "date": "2026-07-05",
+    "title": "Fact check: starter homes"
+  },
+  {
+    "episode_id": "cable-capbrief-0710",
+    "platform": "cable",
+    "show": "Capitol Brief",
+    "date": "2026-07-10",
+    "title": "Debate night recap"
+  },
+  {
+    "episode_id": "yt-pulse-0715",
+    "platform": "youtube",
+    "show": "PolicyPulse",
+    "date": "2026-07-15",
+    "title": "Explained: wildfire insurance"
+  },
+  {
+    "episode_id": "pod-statehouse-0716",
+    "platform": "podcast",
+    "show": "Statehouse Hour",
+    "date": "2026-07-16",
+    "title": "Reyes on childcare"
+  },
+  {
+    "episode_id": "cable-evening-0723",
+    "platform": "cable",
+    "show": "The Evening Desk",
+    "date": "2026-07-23",
+    "title": "Insulin prices and the race"
+  }
+]
