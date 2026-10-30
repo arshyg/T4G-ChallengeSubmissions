@@ -89,6 +89,20 @@ def _show(payload, error):
     return str(payload)[:300]
 
 
+async def _complete(client, model, messages, tools, log):
+    # Free Gemini keys allow only a few requests a minute: wait and retry instead of failing.
+    for wait in (20, 40, 60, None):
+        try:
+            return client.chat.completions.create(
+                model=model, messages=messages, tools=tools, temperature=0,
+                max_tokens=int(os.environ.get("BENCHMARK_MAX_TOKENS", "8192")))
+        except Exception as exc:
+            if getattr(exc, "status_code", None) != 429 or wait is None:
+                raise
+            log(f"  (rate limited by the API; waiting {wait}s and retrying)")
+            await asyncio.sleep(wait)
+
+
 async def run_question(session, client, model, skill, question, max_rounds=MAX_TOOL_ROUNDS, log=print):
     tools = [{"type": "function", "function": {"name": t.name, "description": t.description or "",
                                                "parameters": _simplify(t.inputSchema)}}
@@ -96,8 +110,7 @@ async def run_question(session, client, model, skill, question, max_rounds=MAX_T
     messages = [{"role": "system", "content": skill}, {"role": "user", "content": question}]
     trace = {"question": question, "calls": [], "answer": None, "stopped": None}
     for round_no in range(max_rounds + 1):
-        response = client.chat.completions.create(model=model, messages=messages, tools=tools, temperature=0,
-                                                  max_tokens=int(os.environ.get("BENCHMARK_MAX_TOKENS", "8192")))
+        response = await _complete(client, model, messages, tools, log)
         message = response.choices[0].message
         if not message.tool_calls:
             trace["answer"] = message.content or ""
@@ -129,14 +142,18 @@ def _norm(text):
 
 def grounding_report(trace):
     """(ok, lines): quotes must be verbatim from a retrieved passage; citations must be retrieved passages."""
-    retrieved = {}
+    retrieved, titles = {}, set()
     for call in trace["calls"]:
         if call["tool"] == "search_transcript_segments" and not call["error"] and isinstance(call["result"], dict):
             for r in call["result"].get("results", []):
                 retrieved[(r["episode_id"], r["timestamp"])] = _norm(r["text"])
+                titles.update(_norm(r.get(k, "")).lower() for k in ("episode_title", "show"))
     answer = trace["answer"] or ""
     lines, ok = [], True
     for quote in QUOTE.findall(answer):
+        if _norm(quote).lower() in titles:
+            lines.append(f"\u00b7 quoted an episode or show title (fine): \"{quote[:80]}\"")
+            continue
         found = any(_norm(quote) in text for text in retrieved.values())
         ok &= found
         lines.append(f"{'✓' if found else '✗'} quote {'matches a retrieved passage' if found else 'is NOT in any retrieved passage'}: \"{quote[:80]}\"")
@@ -149,10 +166,15 @@ def grounding_report(trace):
     return ok, lines
 
 
-def _reason(exc):
-    # The MCP client wraps errors in exception groups; show the innermost one.
+def _innermost(exc):
+    # The MCP client wraps errors in exception groups; find the real one.
     while getattr(exc, "exceptions", None):
         exc = exc.exceptions[0]
+    return exc
+
+
+def _reason(exc):
+    exc = _innermost(exc)
     return f"{type(exc).__name__}: {str(exc)[:300]}"
 
 
@@ -171,7 +193,11 @@ async def run(team, questions, simulate_default=None):
                 trace = await run_question(session, client, model, skill, q["question"])
         except Exception as exc:
             print(f"\n\u2717 run stopped: {_reason(exc)}")
-            print(f"  If your server didn't start, run: python challenge_4/check_server.py {team}")
+            if getattr(_innermost(exc), "status_code", None) == 429:
+                print("  That's the API's rate limit or daily quota. Wait a minute (or until tomorrow for the\n"
+                      "  daily quota) and try again; running one question at a time uses fewer requests.")
+            elif not hasattr(_innermost(exc), "status_code"):
+                print(f"  If your server didn't start, run: python challenge_4/check_server.py {team}")
             sys.exit(1)
         if trace["stopped"]:
             print(f"\n✗ stopped: {trace['stopped']}")
