@@ -6,6 +6,12 @@
 Options:
     --practice                  run every question in practice_questions.json
     --simulate-timeout TOOL     make that tool time out (query_media_metrics or search_transcript_segments)
+    --force                     rerun questions even if nothing changed since the last run
+
+Built for free keys: requests are spaced out (ORCA_REQUEST_INTERVAL seconds, default 7) to stay
+under the per-minute limit, and a question whose skill, server and wording haven't changed
+shows its saved result instead of spending requests again, so a --practice run that stops at
+a limit picks up where it left off next time.
 
 Prints each tool call with its arguments and what came back, the final answer, and a
 grounding check: every quote must match a returned passage word for word, and every
@@ -15,10 +21,12 @@ benchmark uses Gemini 3.1 Pro, so behavior can differ. Doesn't touch the leaderb
 """
 import argparse
 import asyncio
+import hashlib
 import json
 import os
 import re
 import sys
+import time
 from pathlib import Path
 
 from orca_mcp import KIT, find_server, open_server, result_payload
@@ -26,6 +34,9 @@ from orca_mcp import KIT, find_server, open_server, result_payload
 GEMINI_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/openai/"
 OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1"
 MAX_TOOL_ROUNDS = 6
+REQUEST_INTERVAL = float(os.environ.get("ORCA_REQUEST_INTERVAL", "7"))
+CACHE = KIT.parent / ".benchmark-cache" / "challenge_4"
+_LAST_REQUEST = [0.0]
 QUOTE = re.compile(r"[\"“]([^\"“”]{12,}?)[\"”]")
 CITATION = re.compile(r"([a-z]+(?:-[a-z0-9]+)+)\s*@\s*(\d{2}:\d{2}:\d{2})")
 
@@ -92,6 +103,10 @@ def _show(payload, error):
 async def _complete(client, model, messages, tools, log):
     # Free Gemini keys allow only a few requests a minute: wait and retry instead of failing.
     for wait in (20, 40, 60, None):
+        gap = REQUEST_INTERVAL - (time.monotonic() - _LAST_REQUEST[0])
+        if gap > 0:
+            await asyncio.sleep(gap)
+        _LAST_REQUEST[0] = time.monotonic()
         try:
             return client.chat.completions.create(
                 model=model, messages=messages, tools=tools, temperature=0,
@@ -178,27 +193,58 @@ def _reason(exc):
     return f"{type(exc).__name__}: {str(exc)[:300]}"
 
 
-async def run(team, questions, simulate_default=None):
+def _cache_key(model, skill, server, question, timeout_tool):
+    # Everything that can change the result: model, skill, server code, question, and the archive.
+    digest = hashlib.sha256()
+    parts = [model, skill, Path(server).read_text(encoding="utf-8"), question, timeout_tool or ""]
+    for name in ("orca_backend.py", "rag_pipeline.py", "corpus/transcripts.jsonl", "corpus/mentions.csv"):
+        parts.append((KIT / name).read_text(encoding="utf-8"))
+    for part in parts:
+        digest.update(part.encode("utf-8") + b"\0")
+    return digest.hexdigest()[:24]
+
+
+def _print_call(call):
+    args = call["arguments"] if isinstance(call["arguments"], dict) else {}
+    print(f"\n\u2192 {call['tool']}({', '.join(f'{k}={v!r}' for k, v in args.items())})")
+    print("  " + _show(call["result"], call["error"]).replace("\n", "\n  "))
+
+
+async def run(team, questions, simulate_default=None, force=False):
     server, skill = find_server(team), load_skill(team)
     client, model = make_client()
     print(f"Model: {model}")
+    if len(questions) > 1:
+        print(f"(requests are spaced {REQUEST_INTERVAL:g}s apart to stay under free-tier limits)")
+    team_cache = CACHE / Path(team).resolve().name
     traces = []
     for q in questions:
         print("\n" + "=" * 78 + f"\nQ: {q['question']}")
         timeout_tool = q.get("simulate_timeout", simulate_default)
         if timeout_tool:
             print(f"(simulating a timeout in {timeout_tool})")
-        try:
-            async with open_server(server, simulate_timeout=timeout_tool) as session:
-                trace = await run_question(session, client, model, skill, q["question"])
-        except Exception as exc:
-            print(f"\n\u2717 run stopped: {_reason(exc)}")
-            if getattr(_innermost(exc), "status_code", None) == 429:
-                print("  That's the API's rate limit or daily quota. Wait a minute (or until tomorrow for the\n"
-                      "  daily quota) and try again; running one question at a time uses fewer requests.")
-            elif not hasattr(_innermost(exc), "status_code"):
-                print(f"  If your server didn't start, run: python challenge_4/check_server.py {team}")
-            sys.exit(1)
+        saved = team_cache / "saved" / (_cache_key(model, skill, server, q["question"], timeout_tool) + ".json")
+        if saved.is_file() and not force:
+            trace = json.loads(saved.read_text(encoding="utf-8"))
+            print("(nothing changed since your last run of this question, so this is the saved result and\n"
+                  " no requests were used; add --force to rerun it)")
+            for call in trace["calls"]:
+                _print_call(call)
+        else:
+            try:
+                async with open_server(server, simulate_timeout=timeout_tool) as session:
+                    trace = await run_question(session, client, model, skill, q["question"])
+            except Exception as exc:
+                print(f"\n\u2717 run stopped: {_reason(exc)}")
+                if getattr(_innermost(exc), "status_code", None) == 429:
+                    print("  That's the API's rate limit or daily quota. Wait a minute (or until midnight Pacific\n"
+                          "  for the daily quota) and run the same command again: finished questions are saved.")
+                elif not hasattr(_innermost(exc), "status_code"):
+                    print(f"  If your server didn't start, run: python challenge_4/check_server.py {team}")
+                sys.exit(1)
+            if trace["answer"] is not None:
+                saved.parent.mkdir(parents=True, exist_ok=True)
+                saved.write_text(json.dumps(trace, default=str), encoding="utf-8")
         if trace["stopped"]:
             print(f"\n✗ stopped: {trace['stopped']}")
         print("\n--- Answer ---\n" + (trace["answer"] or "(no answer)"))
@@ -210,7 +256,7 @@ async def run(team, questions, simulate_default=None):
         if q.get("what_good_looks_like"):
             print("What a good run looks like: " + q["what_good_looks_like"])
         traces.append(dict(trace, id=q.get("id")))
-    out = Path(".benchmark-cache") / "challenge_4" / Path(team).resolve().name / "last_run.json"
+    out = team_cache / "last_run.json"
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(traces, indent=2, default=str))
     print(f"\nFull traces saved to {out}")
@@ -222,6 +268,7 @@ def main():
     parser.add_argument("question", nargs="?", help="a question to ask (or use --practice)")
     parser.add_argument("--practice", action="store_true", help="run every question in practice_questions.json")
     parser.add_argument("--simulate-timeout", choices=["query_media_metrics", "search_transcript_segments"])
+    parser.add_argument("--force", action="store_true", help="rerun questions even if nothing changed")
     args = parser.parse_args()
     if args.practice:
         questions = json.loads((KIT / "practice_questions.json").read_text(encoding="utf-8"))["questions"]
@@ -233,7 +280,7 @@ def main():
         sys.stdout.reconfigure(errors="replace")
     except AttributeError:
         pass
-    asyncio.run(run(args.team, questions, args.simulate_timeout))
+    asyncio.run(run(args.team, questions, args.simulate_timeout, args.force))
 
 
 if __name__ == "__main__":

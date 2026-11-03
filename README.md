@@ -332,8 +332,10 @@ runs the server check and then the practice questions. Practice uses the free
 run `pip install -r requirements.txt` once (it adds the `mcp` package). The archive only
 covers May 1 to July 31, 2026, so a question that says "July" means July 2026; saying so in
 your tool descriptions or skill saves wasted calls. Free keys allow only a few requests a
-minute: `run_agent.py` waits and retries when it hits the limit, and running one question at
-a time (instead of `--practice`) uses fewer requests.
+minute, so `run_agent.py` spaces its requests out and waits and retries if it still hits the
+limit. A question whose skill, server and wording haven't changed shows its saved result
+without spending requests (add `--force` to rerun it), so a `--practice` run that stops at a
+limit picks up where it left off next time.
 
 **Scoring** (out of 100, partial credit per case, on hidden questions):
 
